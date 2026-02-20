@@ -2,7 +2,7 @@
   <Settings>
     <AutoEnable>True</AutoEnable>
     <CurrentEngineMode>All [Global]</CurrentEngineMode>
-    <StatusIndicatorSplitterDistance>5.63449287414551%</StatusIndicatorSplitterDistance>
+    <StatusIndicatorSplitterDistance>8.196721076965332%</StatusIndicatorSplitterDistance>
     <TestsWindowMenuOptions>
       <VerticalSplitMenuOption>false</VerticalSplitMenuOption>
       <ShowPassingTestsMenuOption>true</ShowPassingTestsMenuOption>
@@ -10,6 +10,6 @@
       <ShowUnexecutedTestsMenuOption>true</ShowUnexecutedTestsMenuOption>
       <ShowIgnoredTestsMenuOption>false</ShowIgnoredTestsMenuOption>
     </TestsWindowMenuOptions>
-    <TestsWindowSplitterDistance>50%</TestsWindowSplitterDistance>
+    <TestsWindowSplitterDistance>52.77777862548828%</TestsWindowSplitterDistance>
   </Settings>
 </SolutionConfiguration>

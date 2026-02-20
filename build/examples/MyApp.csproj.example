@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Example .csproj showing switchable references.
+
+    Each switchable dependency is a pair of conditional ItemGroups.
+    The flag properties (_UsePackage_*) are computed in Directory.Build.props
+    before this file is evaluated.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!-- ============================================================ -->
+  <!-- Switchable references                                        -->
+  <!-- ============================================================ -->
+
+  <!-- Acme.Utilities — switchable reference -->
+  <ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' == 'true'">
+    <PackageReference Include="Acme.Utilities" Version="3.1.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' != 'true'">
+    <ProjectReference Include="..\Acme.Utilities\Acme.Utilities.csproj" />
+  </ItemGroup>
+
+  <!-- Acme.Core — switchable reference -->
+  <ItemGroup Condition="'$(_UsePackage_AcmeCore)' == 'true'">
+    <PackageReference Include="Acme.Core" Version="2.0.4" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(_UsePackage_AcmeCore)' != 'true'">
+    <ProjectReference Include="..\Acme.Core\Acme.Core.csproj" />
+  </ItemGroup>
+
+  <!-- ============================================================ -->
+  <!-- Normal (non-switchable) references                           -->
+  <!-- ============================================================ -->
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+<!--
+  Example .ncrunchworkspace for a consumer-only solution where
+  Acme.Utilities and Acme.Core are NOT in the solution and should
+  come from NuGet packages.
+
+  Place this file alongside the .sln file with the same base name:
+    ConsumerOnly.sln
+    ConsumerOnly.ncrunchworkspace
+
+  For a full solution where all libraries are included,
+  leave CustomBuildProperties empty (or omit it entirely).
+-->
+<WorkspaceSettings>
+  <CustomBuildProperties>
+    UsePackageReference_Acme_Utilities=true;UsePackageReference_Acme_Core=true
+  </CustomBuildProperties>
+</WorkspaceSettings>

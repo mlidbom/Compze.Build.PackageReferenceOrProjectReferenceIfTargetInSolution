@@ -1,0 +1,52 @@
+<Project>
+
+  <!--
+    SwitchableReferences.props — Shared MSBuild infrastructure for switching
+    between ProjectReference and PackageReference based on solution context.
+
+    Import this file in your Directory.Build.props BEFORE declaring any
+    per-dependency flag derivation properties.
+
+    See SwitchableReferences.README.md for full usage instructions.
+  -->
+
+  <!--
+    Step 1: Read the solution file content during VS/Rider/dotnet-sln builds.
+
+    This is skipped entirely when:
+    - NCrunch is running (NCrunch uses its own mechanism via Custom Build Properties)
+    - No solution context exists (e.g. bare `dotnet build MyProject.csproj`)
+    - The solution file doesn't exist at the expected path
+
+    The result is stored in $(_SwitchRef_SolutionContent) for use in
+    per-dependency flag derivation.
+  -->
+  <PropertyGroup Condition="'$(NCrunch)' != '1'
+                         And '$(SolutionPath)' != ''
+                         And '$(SolutionPath)' != '*Undefined*'
+                         And Exists('$(SolutionPath)')">
+    <_SwitchRef_SolutionContent>$([System.IO.File]::ReadAllText('$(SolutionPath)'))</_SwitchRef_SolutionContent>
+  </PropertyGroup>
+
+  <!--
+    Step 2: Per-dependency flag derivation.
+
+    After importing this file, declare properties in your Directory.Build.props
+    for each switchable dependency using this two-line pattern:
+
+    <PropertyGroup>
+      <_UsePackage_LibA Condition="'$(UsePackageReference_MyProj_LibA)' == 'true'">true</_UsePackage_LibA>
+      <_UsePackage_LibA Condition="'$(_UsePackage_LibA)' != 'true'
+                                 And '$(_SwitchRef_SolutionContent)' != ''
+                                 And !$(_SwitchRef_SolutionContent.Contains('LibA.csproj'))">true</_UsePackage_LibA>
+    </PropertyGroup>
+
+    Line 1: Honours any explicit override (NCrunch Custom Build Properties / env var).
+    Line 2: Auto-detects from solution content — uses PackageReference only if we
+             have solution context AND the project is NOT listed in it.
+
+    If neither condition is met, the property stays empty/unset, which means
+    the .csproj defaulting to ProjectReference (the safe default).
+  -->
+
+</Project>

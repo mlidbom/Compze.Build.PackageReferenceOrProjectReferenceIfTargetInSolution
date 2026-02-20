@@ -1,0 +1,48 @@
+<Project>
+
+  <!--
+    Example Directory.Build.props showing how to use SwitchableReferences.
+
+    This file goes at your repository root. Adjust the import path to
+    wherever you placed SwitchableReferences.props.
+  -->
+
+  <!-- Import shared infrastructure (reads solution content) -->
+  <Import Project="$(MSBuildThisFileDirectory)build\SwitchableReferences.props" />
+
+  <!--
+    Declare each switchable dependency below.
+
+    Convention:
+      - Override property:  UsePackageReference_{PackageName_with_underscores}
+      - Internal flag:      _UsePackage_{ShortName}
+      - Detect by:          {Filename}.csproj as it appears in the .sln file
+
+    Line 1: Honour explicit override (NCrunch / env var / CLI /p:).
+    Line 2: Auto-detect from solution — use PackageReference if the project
+             is NOT listed in the current solution.
+    If neither fires, the flag stays empty → ProjectReference (safe default).
+  -->
+  <PropertyGroup>
+
+    <!-- Acme.Utilities -->
+    <_UsePackage_AcmeUtilities Condition="'$(UsePackageReference_Acme_Utilities)' == 'true'">true</_UsePackage_AcmeUtilities>
+    <_UsePackage_AcmeUtilities Condition="'$(_UsePackage_AcmeUtilities)' != 'true'
+                                        And '$(_SwitchRef_SolutionContent)' != ''
+                                        And !$(_SwitchRef_SolutionContent.Contains('Acme.Utilities.csproj'))">true</_UsePackage_AcmeUtilities>
+
+    <!-- Acme.Core -->
+    <_UsePackage_AcmeCore Condition="'$(UsePackageReference_Acme_Core)' == 'true'">true</_UsePackage_AcmeCore>
+    <_UsePackage_AcmeCore Condition="'$(_UsePackage_AcmeCore)' != 'true'
+                                   And '$(_SwitchRef_SolutionContent)' != ''
+                                   And !$(_SwitchRef_SolutionContent.Contains('Acme.Core.csproj'))">true</_UsePackage_AcmeCore>
+
+    <!-- Acme.Data -->
+    <_UsePackage_AcmeData Condition="'$(UsePackageReference_Acme_Data)' == 'true'">true</_UsePackage_AcmeData>
+    <_UsePackage_AcmeData Condition="'$(_UsePackage_AcmeData)' != 'true'
+                                   And '$(_SwitchRef_SolutionContent)' != ''
+                                   And !$(_SwitchRef_SolutionContent.Contains('Acme.Data.csproj'))">true</_UsePackage_AcmeData>
+
+  </PropertyGroup>
+
+</Project>

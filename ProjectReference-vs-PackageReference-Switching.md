@@ -297,6 +297,22 @@ When the ProjectReference path is active, you build against whatever commit of t
 
 ---
 
+## Reusable Tooling
+
+The recommended hybrid approach has been packaged as reusable tooling in the `build/` directory:
+
+| File | Purpose |
+|---|---|
+| `build/SwitchableReferences.props` | Shared MSBuild infrastructure — import once per repo |
+| `build/SwitchableReferences.README.md` | Step-by-step usage guide with copy-paste templates |
+| `build/examples/Directory.Build.props.example` | Example showing per-dependency flag declarations |
+| `build/examples/MyApp.csproj.example` | Example showing conditional ItemGroups in a project file |
+| `build/examples/ConsumerOnly.ncrunchworkspace.example` | Example NCrunch workspace with overrides |
+
+See [build/SwitchableReferences.README.md](build/SwitchableReferences.README.md) for full instructions.
+
+---
+
 ## References
 
 - [NCrunch: Troubleshooting Project Build Issues](https://www.ncrunch.net/documentation/troubleshooting_project-build-issues)

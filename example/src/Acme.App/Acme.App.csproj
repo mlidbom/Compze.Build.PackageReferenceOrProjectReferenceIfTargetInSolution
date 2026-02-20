@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Acme.Utilities — switchable reference -->
+  <ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' == 'true'">
+    <PackageReference Include="Acme.Utilities" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' != 'true'">
+    <ProjectReference Include="..\Acme.Utilities\Acme.Utilities.csproj" />
+  </ItemGroup>
+
+</Project>

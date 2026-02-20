@@ -1,0 +1,9 @@
+<!--
+  NCrunch workspace for Acme.AppOnly — Acme.Core and Acme.Utilities are NOT
+  in this solution, so tell NCrunch to use PackageReference for them.
+-->
+<WorkspaceSettings>
+  <CustomBuildProperties>
+    UsePackageReference_Acme_Core=true;UsePackageReference_Acme_Utilities=true
+  </CustomBuildProperties>
+</WorkspaceSettings>

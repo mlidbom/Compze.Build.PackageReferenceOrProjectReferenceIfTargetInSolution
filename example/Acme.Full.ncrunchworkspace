@@ -1,0 +1,7 @@
+<!--
+  NCrunch workspace for Acme.Full — all library projects are in the solution,
+  so no overrides are needed. Everything builds from ProjectReference.
+-->
+<WorkspaceSettings>
+  <CustomBuildProperties></CustomBuildProperties>
+</WorkspaceSettings>

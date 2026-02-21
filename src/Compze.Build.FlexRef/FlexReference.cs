@@ -1,6 +1,6 @@
 namespace Compze.Build.FlexRef;
 
-record FlexReference
+class FlexReference
 {
     public string PackageId { get; }
     public FileInfo CsprojFile { get; }

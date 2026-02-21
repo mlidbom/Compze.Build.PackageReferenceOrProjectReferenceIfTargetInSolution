@@ -50,16 +50,3 @@ Both `FlexReferenceResolver.Resolve` (line 44) and `FlexRefConfigurationFile.Cre
 
 **Files:** `ManagedProject.FlexReferenceResolver.cs` line 44, `FlexRefConfigurationFile.cs` line 75
 
-### 9. `FlexReference` is a `record` but doesn't benefit from record semantics
-
-`FlexReference` is declared as `record` but has a constructor that computes `PropertyName` from `PackageId`, and uses `{ get; }` syntax rather than positional parameters. It doesn't use value equality, `with` expressions, or deconstruction anywhere. A plain `class` would communicate intent more accurately.
-
-**File:** `FlexReference.cs`
-
----
-
-## Not Issues
-
-- **`Version="*-*"`** — Conscious design choice, well-suited to the tool's purpose.
-- **No `--dry-run`** — Nice-to-have UX, not a code quality issue.
-- **`fetch-depth: 0` in CI** — Intentional for MinVer.

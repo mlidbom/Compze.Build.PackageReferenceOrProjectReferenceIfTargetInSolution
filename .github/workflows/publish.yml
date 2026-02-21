@@ -36,28 +36,25 @@ jobs:
           version: ${{ steps.version.outputs.version }}
           validation_level: error
 
-      - name: Write release notes to file
-        env:
-          RELEASE_NOTES: ${{ steps.changelog.outputs.changes }}
-        run: echo "$RELEASE_NOTES" > RELEASE_NOTES.md
-
       - name: Pack
-        env:
-          RELEASE_NOTES: ${{ steps.changelog.outputs.changes }}
         run: |
           dotnet pack \
             src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution.csproj \
             --configuration Release \
-            --output ./artifacts \
-            -p:PackageReleaseNotes="$RELEASE_NOTES"
+            --output ./artifacts
 
       - name: Push to NuGet.org
         run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create GitHub Release
-        run: gh release create "$GITHUB_REF_NAME" ./artifacts/*.nupkg --title "${{ steps.version.outputs.version }}" --notes-file RELEASE_NOTES.md
         env:
+          RELEASE_NOTES: ${{ steps.changelog.outputs.changes }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$RELEASE_NOTES" > RELEASE_NOTES.md
+          gh release create "$GITHUB_REF_NAME" ./artifacts/*.nupkg \
+            --title "${{ steps.version.outputs.version }}" \
+            --notes-file RELEASE_NOTES.md
 
       - name: Upload NuGet package artifact
         uses: actions/upload-artifact@v4

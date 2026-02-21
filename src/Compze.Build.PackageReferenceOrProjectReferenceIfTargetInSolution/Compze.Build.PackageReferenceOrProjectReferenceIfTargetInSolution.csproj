@@ -44,7 +44,7 @@
              PackagePath="contentFiles/any/any/" />
 
     <!-- Package README displayed on NuGet.org -->
-    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

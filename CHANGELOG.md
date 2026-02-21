@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.2] - 2026-02-21
+
+### Added
+- Updates to readme and internal structure updates.
+
 ## [0.2.0-alpha.1] - 2026-02-21
 
 ### Added

@@ -309,7 +309,7 @@ The recommended hybrid approach has been packaged as reusable tooling in the `bu
 | File | Purpose |
 |---|---|
 | `build/PackageReferenceOrProjectReferenceIfTargetInSolution.props` | Shared MSBuild infrastructure — import once per repo |
-| `build/PackageReferenceOrProjectReferenceIfTargetInSolution.README.md` | Step-by-step usage guide with copy-paste templates |
+| `src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/README.md` | Usage guide (also displayed on NuGet.org) |
 | `build/examples/Directory.Build.props.example` | Example showing per-dependency flag declarations |
 | `build/examples/MyApp.csproj.example` | Example showing conditional ItemGroups in a project file |
 | `build/examples/ConsumerOnly.v3.ncrunchsolution.example` | Example NCrunch solution settings with overrides |
@@ -317,7 +317,7 @@ The recommended hybrid approach has been packaged as reusable tooling in the `bu
 
 The `example/` directory contains a fully functional three-project workspace (`Acme.Core` → `Acme.Utilities` → `Acme.App`) with two solutions (`Acme.Full.slnx` and `Acme.AppOnly.slnx`) that exercise both the ProjectReference and PackageReference paths, including NCrunch grid node support.
 
-See [build/PackageReferenceOrProjectReferenceIfTargetInSolution.README.md](build/PackageReferenceOrProjectReferenceIfTargetInSolution.README.md) for full instructions.
+See [src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/README.md](src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/README.md) for full instructions.
 
 ---
 

@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Required by SDK but irrelevant — no compiled output -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <!-- Suppress source-link Git queries (avoids errors in worktree checkouts) -->
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+
+    <!-- Package metadata -->
+    <PackageId>Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution</PackageId>
+    <Version>0.2.0-alpha.1</Version>
+    <Description>Solution-aware MSBuild reference resolution for .NET projects. Automatically switches between ProjectReference and PackageReference based on which projects are in the current .slnx solution.</Description>
+    <Authors>MagnusLidbom</Authors>
+    <Copyright>Copyright (c) Lidbom Solutions AB. All rights reserved.</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mlidbom/Compze</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mlidbom/Compze</RepositoryUrl>
+    <PackageTags>msbuild;nuget;project-reference;package-reference;solution;build;dotnet</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Content-only package: no compiled output, no dependencies -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      The .props file — packed as contentFiles so 'dotnet add package' places it
+      in the consumer's project directory. The consumer then copies it to their
+      build/ folder and imports it from Directory.Build.props.
+    -->
+    <Content Include="..\..\build\PackageReferenceOrProjectReferenceIfTargetInSolution.props"
+             Link="PackageReferenceOrProjectReferenceIfTargetInSolution.props"
+             Pack="true"
+             PackagePath="contentFiles/any/any/" />
+
+    <!-- Package README displayed on NuGet.org -->
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

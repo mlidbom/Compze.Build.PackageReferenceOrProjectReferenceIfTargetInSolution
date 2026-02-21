@@ -1,0 +1,53 @@
+name: Publish to NuGet
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version (e.g. 0.2.0-alpha.1). Leave empty to use version from .csproj.'
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version_arg=/p:Version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+            # Strip leading 'v' if present
+            VERSION="${TAG#v}"
+            echo "version_arg=/p:Version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "version_arg=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pack
+        run: >
+          dotnet pack
+          src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution.csproj
+          --configuration Release
+          --output ./artifacts
+          ${{ steps.version.outputs.version_arg }}
+
+      - name: Test example — Full solution
+        run: dotnet test example/Acme.Full.slnx
+
+      - name: Test example — AppOnly solution
+        run: dotnet test example/Acme.AppOnly.slnx
+
+      - name: Push to NuGet.org
+        run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

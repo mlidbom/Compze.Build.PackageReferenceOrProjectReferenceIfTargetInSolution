@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Pack NuGet package
+        run: dotnet pack src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution.csproj --configuration Release --output ./artifacts
+
+      - name: Publish local NuGet packages for example workspace
+        run: dotnet nuget push "example/local-nuget-feed/*.nupkg" --source "example/local-nuget-feed" || true
+
+      - name: Test example — Full solution (all ProjectReferences)
+        run: dotnet test example/Acme.Full.slnx
+
+      - name: Test example — AppOnly solution (PackageReferences for absent projects)
+        run: dotnet test example/Acme.AppOnly.slnx
+
+      - name: Upload NuGet package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts/*.nupkg

@@ -126,4 +126,4 @@ dotnet build /p:UsePackageReference_Acme_Utilities=true
 
 ## License
 
-[Unlicense](https://unlicense.org/)
+[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)

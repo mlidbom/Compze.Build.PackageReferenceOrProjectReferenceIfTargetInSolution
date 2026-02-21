@@ -9,7 +9,7 @@
     Import this file in your Directory.Build.props BEFORE declaring any
     per-dependency properties.
 
-    See PackageReferenceOrProjectReferenceIfTargetInSolution.README.md
+    See src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/README.md
     for full usage instructions.
   -->
 

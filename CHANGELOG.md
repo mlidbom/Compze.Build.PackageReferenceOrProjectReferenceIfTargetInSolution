@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.5.0-alpha.1] - 2026-02-21
+
+### Changed
+- Refactored into a dotnet tool that makes everything automatic
+
 ## [0.2.0-alpha.3] - 2026-02-21
 
 ### Changed

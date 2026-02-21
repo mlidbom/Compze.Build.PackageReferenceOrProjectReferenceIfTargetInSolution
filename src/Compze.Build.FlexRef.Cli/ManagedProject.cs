@@ -1,4 +1,3 @@
-using System.Xml.Linq;
 using Microsoft.Build.Evaluation;
 
 namespace Compze.Build.FlexRef.Cli;
@@ -9,13 +8,22 @@ record PackageReferenceEntry(string PackageName, string Version);
 
 partial class ManagedProject
 {
+    static List<FlexReference>? _flexReferences;
+    static List<ManagedProject>? _allProjects;
+
+    public static IReadOnlyList<FlexReference> FlexReferences =>
+        _flexReferences ?? throw new InvalidOperationException($"Call {nameof(ScanAndResolveFlexReferences)} first.");
+
+    public static IReadOnlyList<ManagedProject> AllProjects =>
+        _allProjects ?? throw new InvalidOperationException($"Call {nameof(ScanAllProjects)} or {nameof(ScanAndResolveFlexReferences)} first.");
+
     public FileInfo CsprojFile { get; }
     public string? PackageId { get; }
     public bool IsPackable { get; }
     public List<ProjectReferenceEntry> ProjectReferences { get; }
     public List<PackageReferenceEntry> PackageReferences { get; }
 
-    public ManagedProject(FileInfo csprojFile, ProjectCollection projectCollection)
+    ManagedProject(FileInfo csprojFile, ProjectCollection projectCollection)
     {
         CsprojFile = csprojFile;
 
@@ -43,14 +51,30 @@ partial class ManagedProject
             .ToList();
     }
 
-    public void UpdateCsprojIfNeeded(List<FlexReference> flexReferences) =>
-        CsprojUpdater.UpdateIfNeeded(this, flexReferences);
+    public static List<ManagedProject> ScanAllProjects(DirectoryInfo rootDirectory)
+    {
+        if(_allProjects != null)
+            throw new InvalidOperationException("Projects have already been scanned. Scanning may only be performed once.");
 
-    public List<FlexReference> FindFlexReferences(List<FlexReference> flexReferences)
+        _allProjects = Scanner.ScanAllProjects(rootDirectory);
+        return _allProjects;
+    }
+
+    public static List<FlexReference> ScanAndResolveFlexReferences(DirectoryInfo rootDirectory, FlexRefConfigurationFile configuration)
+    {
+        var allProjects = ScanAllProjects(rootDirectory);
+        _flexReferences = FlexReferenceResolver.Resolve(configuration, allProjects);
+        return _flexReferences;
+    }
+
+    public void UpdateCsprojIfNeeded() =>
+        CsprojUpdater.UpdateIfNeeded(this);
+
+    public List<FlexReference> FindFlexReferences()
     {
         var result = new List<FlexReference>();
 
-        foreach(var package in flexReferences)
+        foreach(var package in FlexReferences)
         {
             if(CsprojFile.FullName.Equals(package.CsprojFile.FullName, StringComparison.OrdinalIgnoreCase))
                 continue;

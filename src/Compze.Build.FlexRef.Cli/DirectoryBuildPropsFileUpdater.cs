@@ -41,7 +41,7 @@ static class DirectoryBuildPropsFileUpdater
             .ToList();
 
         foreach (var importElement in flexRefImports)
-            RemoveElementAndPrecedingComment(importElement);
+            importElement.RemoveWithPrecedingComment();
     }
 
     static void RemoveExistingUsePackageReferenceProperties(XElement rootElement)
@@ -53,10 +53,10 @@ static class DirectoryBuildPropsFileUpdater
                 .ToList();
 
             foreach (var property in propertiesToRemove)
-                RemoveElementAndPrecedingComment(property);
+                property.RemoveWithPrecedingComment();
 
             if (!propertyGroup.HasElements)
-                RemoveElementAndPrecedingComment(propertyGroup);
+                propertyGroup.RemoveWithPrecedingComment();
         }
     }
 
@@ -97,10 +97,4 @@ static class DirectoryBuildPropsFileUpdater
             propertyGroup);
     }
 
-    static void RemoveElementAndPrecedingComment(XNode node)
-    {
-        if (node.PreviousNode is XComment)
-            node.PreviousNode.Remove();
-        node.Remove();
-    }
 }

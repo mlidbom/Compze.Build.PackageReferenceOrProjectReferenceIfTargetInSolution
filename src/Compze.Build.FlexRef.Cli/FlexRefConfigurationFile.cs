@@ -61,7 +61,7 @@ class FlexRefConfigurationFile
     public void CreateDefault()
     {
         Console.WriteLine("Scanning for packable projects...");
-        var allProjects = ProjectFileScanner.ScanAllProjects(RootDirectory);
+        var allProjects = ManagedProject.ScanAllProjects(RootDirectory);
         var packableProjects = allProjects
             .Where(project => project is { IsPackable: true, PackageId: not null })
             .OrderBy(project => project.PackageId, StringComparer.OrdinalIgnoreCase)

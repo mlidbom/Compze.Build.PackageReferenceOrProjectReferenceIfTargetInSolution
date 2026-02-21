@@ -6,9 +6,9 @@ partial class ManagedProject
 {
     static class CsprojUpdater
     {
-        public static void UpdateIfNeeded(ManagedProject project, List<FlexReference> flexReferences)
+        public static void UpdateIfNeeded(ManagedProject project)
         {
-            var referencedFlexReferences = project.FindFlexReferences(flexReferences);
+            var referencedFlexReferences = project.FindFlexReferences();
 
             if(referencedFlexReferences.Count == 0)
                 return;
@@ -16,47 +16,47 @@ partial class ManagedProject
             var document = XDocument.Load(project.CsprojFile.FullName);
             var rootElement = document.Root!;
 
-            RemoveExistingFlexReferences(rootElement, flexReferences);
+            RemoveExistingFlexReferences(rootElement);
             AppendFlexReferencePairs(rootElement, project.CsprojFile, referencedFlexReferences);
 
             XmlFileHelper.SaveWithoutDeclaration(document, project.CsprojFile.FullName);
             Console.WriteLine($"  Updated: {project.CsprojFile.FullName} ({referencedFlexReferences.Count} flex reference(s))");
         }
 
-        static void RemoveExistingFlexReferences(XElement rootElement, List<FlexReference> flexReferences)
+        static void RemoveExistingFlexReferences(XElement rootElement)
         {
             var conditionalItemGroups = rootElement.Elements("ItemGroup")
                                                    .Where(itemGroup =>
                                                     {
                                                         var condition = itemGroup.Attribute("Condition")?.Value ?? "";
-                                                        return flexReferences.Any(package => condition.Contains(package.PropertyName));
+                                                        return FlexReferences.Any(package => condition.Contains(package.PropertyName));
                                                     })
                                                    .ToList();
 
             foreach(var itemGroup in conditionalItemGroups)
-                RemoveElementAndPrecedingComment(itemGroup);
+                itemGroup.RemoveWithPrecedingComment();
 
             foreach(var itemGroup in rootElement.Elements("ItemGroup").ToList())
             {
                 var referencesToRemove = itemGroup.Elements()
-                                                  .Where(element => IsFlexReference(element, flexReferences))
+                                                  .Where(element => IsFlexReference(element))
                                                   .ToList();
 
                 foreach(var reference in referencesToRemove)
                     reference.Remove();
 
                 if(!itemGroup.HasElements)
-                    RemoveElementAndPrecedingComment(itemGroup);
+                    itemGroup.RemoveWithPrecedingComment();
             }
         }
 
-        static bool IsFlexReference(XElement element, List<FlexReference> flexReferences)
+        static bool IsFlexReference(XElement element)
         {
             if(element.Name.LocalName == "PackageReference")
             {
                 var includeName = element.Attribute("Include")?.Value;
                 return includeName != null &&
-                       flexReferences.Any(package =>
+                       FlexReferences.Any(package =>
                                               package.PackageId.Equals(includeName, StringComparison.OrdinalIgnoreCase));
             }
 
@@ -65,7 +65,7 @@ partial class ManagedProject
                 var includePath = element.Attribute("Include")?.Value;
                 if(includePath == null) return false;
                 var fileName = Path.GetFileName(includePath);
-                return flexReferences.Any(package =>
+                return FlexReferences.Any(package =>
                                               package.CsprojFile.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));
             }
 
@@ -104,11 +104,5 @@ partial class ManagedProject
             return relativePath.Replace('/', '\\');
         }
 
-        static void RemoveElementAndPrecedingComment(XNode node)
-        {
-            if(node.PreviousNode is XComment)
-                node.PreviousNode.Remove();
-            node.Remove();
-        }
     }
 }

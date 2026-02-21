@@ -18,9 +18,7 @@ static class SyncCommand
         configFile.Load();
 
         Console.WriteLine("Scanning projects...");
-        var allProjects = ProjectFileScanner.ScanAllProjects(rootDirectory);
-
-        var flexReferences = ResolveFlexReferences(configFile, allProjects);
+        var flexReferences = ManagedProject.ScanAndResolveFlexReferences(rootDirectory, configFile);
         Console.WriteLine($"  Resolved {flexReferences.Count} flex reference(s):");
         foreach(var package in flexReferences)
             Console.WriteLine($"    - {package.PackageId} ({package.CsprojFile.Name})");
@@ -35,8 +33,8 @@ static class SyncCommand
 
         Console.WriteLine();
         Console.WriteLine("Updating .csproj files...");
-        foreach(var project in allProjects)
-            project.UpdateCsprojIfNeeded(flexReferences);
+        foreach(var project in ManagedProject.AllProjects)
+            project.UpdateCsprojIfNeeded();
 
         Console.WriteLine();
         Console.WriteLine("Updating NCrunch solution files...");
@@ -47,60 +45,5 @@ static class SyncCommand
         Console.WriteLine();
         Console.WriteLine("Sync complete.");
         return 0;
-    }
-
-    static List<FlexReference> ResolveFlexReferences(FlexRefConfigurationFile configuration, List<ManagedProject> allProjects)
-    {
-        var packableProjects = allProjects
-                              .Where(project => project is { IsPackable: true, PackageId: not null })
-                              .ToList();
-
-        var resolvedPackages = new List<FlexReference>();
-
-        if(configuration.UseAutoDiscover)
-        {
-            foreach(var project in packableProjects)
-            {
-                if(configuration.AutoDiscoverExclusions
-                                .Any(exclusion => exclusion.Equals(project.PackageId!, StringComparison.OrdinalIgnoreCase)))
-                    continue;
-
-                resolvedPackages.Add(new FlexReference(project));
-            }
-        }
-
-        foreach(var explicitPackageName in configuration.ExplicitPackageNames)
-        {
-            if(resolvedPackages.Any(existing =>
-                                        existing.PackageId.Equals(explicitPackageName, StringComparison.OrdinalIgnoreCase)))
-                continue;
-
-            var matchingProject = packableProjects
-               .FirstOrDefault(project =>
-                                   project.PackageId!.Equals(explicitPackageName, StringComparison.OrdinalIgnoreCase));
-
-            if(matchingProject != null)
-            {
-                resolvedPackages.Add(new FlexReference(matchingProject));
-            } else
-            {
-                Console.Error.WriteLine(
-                    $"  Warning: Explicit package '{explicitPackageName}' was not found in any project.");
-            }
-        }
-
-        foreach(var package in resolvedPackages)
-        {
-            var expectedFileName = package.PackageId + ".csproj";
-            if(!package.CsprojFile.Name.Equals(expectedFileName, StringComparison.OrdinalIgnoreCase))
-            {
-                Console.Error.WriteLine(
-                    $"  Warning: Package '{package.PackageId}' is in project file '{package.CsprojFile.Name}' (expected '{expectedFileName}')");
-            }
-        }
-
-        return resolvedPackages
-              .OrderBy(package => package.PackageId, StringComparer.OrdinalIgnoreCase)
-              .ToList();
     }
 }

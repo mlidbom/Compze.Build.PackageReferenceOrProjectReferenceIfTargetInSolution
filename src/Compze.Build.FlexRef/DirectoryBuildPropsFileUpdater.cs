@@ -11,10 +11,10 @@ class DirectoryBuildPropsFileUpdater
     readonly XElement _rootElement;
     readonly FlexRefWorkspace _workspace;
 
-    DirectoryBuildPropsFileUpdater(DirectoryInfo rootDirectory, FlexRefWorkspace workspace)
+    DirectoryBuildPropsFileUpdater(FlexRefWorkspace workspace)
     {
         _workspace = workspace;
-        _file = new FileInfo(Path.Combine(rootDirectory.FullName, FileName));
+        _file = new FileInfo(Path.Combine(workspace.RootDirectory.FullName, FileName));
 
         if(_file.Exists)
         {
@@ -28,9 +28,9 @@ class DirectoryBuildPropsFileUpdater
         }
     }
 
-    public static void UpdateOrCreate(DirectoryInfo rootDirectory, FlexRefWorkspace workspace)
+    public static void UpdateOrCreate(FlexRefWorkspace workspace)
     {
-        var updater = new DirectoryBuildPropsFileUpdater(rootDirectory, workspace);
+        var updater = new DirectoryBuildPropsFileUpdater(workspace);
         updater.Update();
     }
 

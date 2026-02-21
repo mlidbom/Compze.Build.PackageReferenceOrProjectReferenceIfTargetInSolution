@@ -6,36 +6,6 @@ This is a well-designed, well-documented project that solves a real problem clea
 
 ---
 
-## Bugs / Correctness Issues
-
-### 1. Mutable static state — non-resettable singleton pattern
-
-`ManagedProject.cs` lines 12–13: `_flexReferences` and `_allProjects` are static fields that can only be set once (the guard throws on re-scan). This works fine for a single CLI invocation, but it's a hidden coupling — `SyncCommand` depends on `ScanAndResolveFlexReferences` having been called earlier, with the results accessed later via static properties from `CsprojUpdater`, `NCrunchUpdater`, `DirectoryBuildPropsFileUpdater`, etc.
-
-This isn't a bug today (the CLI runs once and exits), but it makes the code harder to reason about and impossible to test in isolation. Consider passing the resolved data explicitly rather than relying on ambient static state.
-
-### 2. `EqualsIgnoreCase` on nullable `string?` — silent null propagation
-
-`StringCE.cs` line 5: The extension method is defined on `string?`, so `((string?)null).EqualsIgnoreCase("foo")` returns `false` silently. This is actually fine behavior, but in call sites like `ManagedProject.cs` line 72 (`package.PackageId.EqualsIgnoreCase(...)`) — `PackageId` is non-nullable on `FlexReference`, so this works. However, in `FlexReferenceResolver` at line 18, `project.PackageId!` is force-unwrapped despite the `Where` filter already ensuring it's not null. Harmless but worth a note — the `!` is redundant given the filter.
-
-### 3. `ProjectCollection` not fully cleaned up on error
-
-`ManagedProject.Scanner.cs` lines 11–15: The `ProjectCollection` is correctly `using`'d, but `ParseCsproj` catches and swallows all exceptions. If a `.csproj` fails to parse, the loaded projects in the collection aren't unloaded individually. MSBuild's `ProjectCollection` can have stale state if a project partially loaded. In practice this probably doesn't matter since the collection is disposed at the end, but it's worth noting.
-
----
-
-## Compiler Warnings (currently reported)
-
-### 4. Nullable conditional access warning
-
-`DirectoryBuildPropsFileUpdater.cs` line 50: `.Attribute("Project")?.Value?.Contains(...)` — the second `?.` is flagged because `XAttribute.Value` is non-nullable. Fix: change to `.Attribute("Project")?.Value.Contains(...)`.
-
-### 5. Method hiding warning
-
-`ManagedProject.Scanner.cs` line 11: `Scanner.ScanAllProjects` hides the outer `ManagedProject.ScanAllProjects`. The nested class method is the actual implementation. Consider renaming the inner method (e.g., `ScanDirectory`) to avoid the hiding, or add `new` if intentional.
-
----
-
 ## Design Concerns
 
 ### 6. `Version="*-*"` in generated PackageReference
@@ -56,10 +26,6 @@ This is clearly a conscious design choice (you don't want to manage version pinn
 
 `ManagedProject.Scanner.cs` line 9 and `SlnxSolution.Scanner.cs` line 9 both define `["bin", "obj", "node_modules", ".git", ".vs", ".idea"]`. Extract to a shared constant.
 
-### 9. Hardcoded backslashes in relative paths
-
-`ManagedProject.CsprojUpdater.cs` line 91: `ComputeRelativePathWithBackslashes` forces `\` separators. MSBuild actually handles both `/` and `\`, even on Linux. Since the CI runs on `ubuntu-latest` (per `build-and-test.yml`), the generated `.csproj` files will have Windows-style paths. This works but is unconventional on Linux. Using `/` universally would be more cross-platform idiomatic.
-
 ### 10. No `--dry-run` or diff mode
 
 The tool modifies files in place with no preview option. For a tool that rewrites `.csproj` and `Directory.Build.props` files, a `--dry-run` flag showing what would change would build user confidence. Not a bug, but a significant UX gap.
@@ -71,16 +37,6 @@ The tool modifies files in place with no preview option. For a tool that rewrite
 ### 11. `FlexRefConfigurationFile.Load()` doesn't validate root element name
 
 `FlexRefConfigurationFile.cs` line 40: The code checks that a root element exists but doesn't verify it's `<FlexRef>`. A stray XML file named `FlexRef.config.xml` with `<Project>` as root would silently produce no results rather than warning the user.
-
-### 12. `Acme.App.Tests.csproj` has a raw `ProjectReference`, not a flex reference
-
-`example/tests/Acme.App.Tests/Acme.App.Tests.csproj` line 14: This has a hard `<ProjectReference Include="..\..\src\Acme.App\Acme.App.csproj" />` without flex-ref wrapping. This is correct because `Acme.App` isn't a NuGet package (it's the app itself), but it might confuse readers of the example who expect all references to be flex. A brief comment would help.
-
-### 13. `XNodeExtensions.RemoveWithPrecedingComment` only removes one preceding comment
-
-`XNodeExtensions.cs` line 7: If there happen to be multiple consecutive comments before a node, only the immediately preceding one is removed. This is fine for the tool's own generated output (which uses exactly one comment per block), but could leave orphaned comments if a user manually added extra ones.
-
----
 
 ## CI / Build Pipeline
 
@@ -100,41 +56,8 @@ Not a problem today, but the tool generates backslash paths (#9) and runs on Lin
 
 ## Minor / Style
 
-### 17. `record FlexReference` with mutable-looking property style
-
-`FlexReference.cs` line 3: It's a `record` with explicit `{ get; }` properties set in the constructor body. This is semantically fine but unconventional — a `record` with a primary constructor and positional parameters would be more idiomatic C#:
-
-```csharp
-record FlexReference(string PackageId, FileInfo CsprojFile, string PropertyName);
-```
-
-With the factory logic in a static method. Minor style preference.
-
-### 18. `@this` parameter naming convention
-
-`StringCE.cs`, `XDocumentCE.cs`, `XNodeExtensions.cs`: Extension methods use `@this` as the parameter name. This is a recognized C# pattern but can confuse developers unfamiliar with it. Totally fine to keep if that's your convention.
-
-### 19. `.csproj` targets `net8.0` but CLI-REWRITE-PLAN says `net10.0`
-
-`Compze.Build.FlexRef.csproj` targets `net8.0`. `CLI-REWRITE-PLAN.md` mentions `net10.0`. Either the plan doc is aspirational/outdated, or the csproj hasn't been updated yet. Worth aligning.
-
 ### 20. Inconsistent file naming: `CE` vs `Extensions` suffix
 
 `StringCE.cs`, `XDocumentCE.cs` use "CE" (Class Extensions?), while `XNodeExtensions.cs`, `ProjectExtensions.cs` use "Extensions". Pick one convention.
 
 ---
-
-## Summary
-
-| Category | Count |
-|---|---|
-| Bugs / correctness | 3 (minor, none likely to cause failures today) |
-| Compiler warnings | 2 (should fix) |
-| Design concerns | 5 |
-| Robustness / edge cases | 3 |
-| CI / pipeline | 3 |
-| Style / naming | 4 |
-
-**Strongest aspects:** Excellent documentation and design rationale, clean separation of concerns via partial classes, idiomatic XML handling throughout (no string-based XML manipulation), working example workspace that exercises both modes, and a thoughtful CI pipeline that validates the example end-to-end.
-
-**Highest-priority fixes:** The two compiler warnings (#4, #5), the `Version="*-*"` documentation gap (#6), and adding unit tests (#14).

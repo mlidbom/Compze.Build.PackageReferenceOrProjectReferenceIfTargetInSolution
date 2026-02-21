@@ -8,7 +8,7 @@ partial class ManagedProject
     {
         public static void UpdateIfNeeded(ManagedProject project, List<FlexReference> flexReferences)
         {
-            var referencedFlexReferences = DetermineReferencedFlexReferences(project, flexReferences);
+            var referencedFlexReferences = project.FindFlexReferences(flexReferences);
 
             if(referencedFlexReferences.Count == 0)
                 return;
@@ -21,28 +21,6 @@ partial class ManagedProject
 
             XmlFileHelper.SaveWithoutDeclaration(document, project.CsprojFile.FullName);
             Console.WriteLine($"  Updated: {project.CsprojFile.FullName} ({referencedFlexReferences.Count} flex reference(s))");
-        }
-
-        static List<FlexReference> DetermineReferencedFlexReferences(ManagedProject project, List<FlexReference> flexReferences)
-        {
-            var result = new List<FlexReference>();
-
-            foreach(var package in flexReferences)
-            {
-                if(project.CsprojFile.FullName.Equals(package.CsprojFile.FullName, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                var hasMatchingProjectReference = project.ProjectReferences
-                                                         .Any(reference => reference.ResolvedFileName.Equals(package.CsprojFile.Name, StringComparison.OrdinalIgnoreCase));
-
-                var hasMatchingPackageReference = project.PackageReferences
-                                                         .Any(reference => reference.PackageName.Equals(package.PackageId, StringComparison.OrdinalIgnoreCase));
-
-                if(hasMatchingProjectReference || hasMatchingPackageReference)
-                    result.Add(package);
-            }
-
-            return result.OrderBy(package => package.PackageId, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         static void RemoveExistingFlexReferences(XElement rootElement, List<FlexReference> flexReferences)

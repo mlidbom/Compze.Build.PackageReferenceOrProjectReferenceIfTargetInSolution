@@ -23,20 +23,23 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Extract changelog for this version
-        id: changelog
+      - name: Determine version from tag
+        id: version
         run: |
           TAG="${GITHUB_REF_NAME}"
-          VERSION="${TAG#v}"
-          # Extract the section between this version's header and the next version header
-          NOTES=$(sed -n "/^## \[$VERSION\]/,/^## \[/{/^## \[$VERSION\]/d;/^## \[/d;p}" CHANGELOG.md)
-          if [ -z "$NOTES" ]; then
-            echo "::error::No changelog entry found for version $VERSION in CHANGELOG.md"
-            exit 1
-          fi
-          # Write to file for gh release create
-          echo "$NOTES" > RELEASE_NOTES.md
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog for this version
+        id: changelog
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ steps.version.outputs.version }}
+          validation_level: error
+
+      - name: Write release notes to file
+        env:
+          RELEASE_NOTES: ${{ steps.changelog.outputs.changes }}
+        run: echo "$RELEASE_NOTES" > RELEASE_NOTES.md
 
       - name: Pack
         run: |
@@ -50,7 +53,7 @@ jobs:
         run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create GitHub Release
-        run: gh release create "$GITHUB_REF_NAME" ./artifacts/*.nupkg --title "${{ steps.changelog.outputs.version }}" --notes-file RELEASE_NOTES.md
+        run: gh release create "$GITHUB_REF_NAME" ./artifacts/*.nupkg --title "${{ steps.version.outputs.version }}" --notes-file RELEASE_NOTES.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

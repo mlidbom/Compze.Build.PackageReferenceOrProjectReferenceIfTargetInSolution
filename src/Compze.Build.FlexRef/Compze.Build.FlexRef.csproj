@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
 
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>flexref</ToolCommandName>
@@ -14,7 +15,8 @@
     <Description>CLI tool for managing FlexRef switchable references — automatically generates the boilerplate for switching between ProjectReference and PackageReference based on solution membership.</Description>
     <Authors>MagnusLidbom</Authors>
     <Copyright>Copyright (c) Lidbom Solutions AB. All rights reserved.</Copyright>
-    <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/mlidbom/Compze.Build.FlexRef</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mlidbom/Compze.Build.FlexRef</RepositoryUrl>
     <PackageTags>msbuild;nuget;project-reference;package-reference;solution;build;dotnet;cli</PackageTags>
@@ -29,6 +31,10 @@
 
   <ItemGroup>
     <EmbeddedResource Include="FlexRef.props" LogicalName="FlexRef.props" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

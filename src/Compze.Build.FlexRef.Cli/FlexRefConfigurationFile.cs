@@ -4,24 +4,27 @@ namespace Compze.Build.FlexRef.Cli;
 
 class FlexRefConfigurationFile
 {
-    public bool UseAutoDiscover { get; init; }
-    public List<string> AutoDiscoverExclusions { get; init; } = [];
-    public List<string> ExplicitPackageNames { get; init; } = [];
-
     const string ConfigFileName = "FlexRef.config.xml";
 
-    public static string GetConfigFilePath(DirectoryInfo rootDirectory) =>
-        Path.Combine(rootDirectory.FullName, ConfigFileName);
+    public DirectoryInfo RootDirectory { get; }
+    public string ConfigFilePath { get; }
+    public bool UseAutoDiscover { get; private init; }
+    public List<string> AutoDiscoverExclusions { get; private init; } = [];
+    public List<string> ExplicitPackageNames { get; private init; } = [];
 
-    public static bool ExistsIn(DirectoryInfo rootDirectory) =>
-        File.Exists(GetConfigFilePath(rootDirectory));
-
-    public static FlexRefConfigurationFile LoadFrom(DirectoryInfo rootDirectory)
+    public FlexRefConfigurationFile(DirectoryInfo rootDirectory)
     {
-        var configFilePath = GetConfigFilePath(rootDirectory);
-        var document = XDocument.Load(configFilePath);
+        RootDirectory = rootDirectory;
+        ConfigFilePath = Path.Combine(rootDirectory.FullName, ConfigFileName);
+    }
+
+    public bool Exists() => File.Exists(ConfigFilePath);
+
+    public FlexRefConfigurationFile Load()
+    {
+        var document = XDocument.Load(ConfigFilePath);
         var rootElement = document.Root
-            ?? throw new InvalidOperationException($"Invalid config file: {configFilePath} has no root element.");
+            ?? throw new InvalidOperationException($"Invalid config file: {ConfigFilePath} has no root element.");
 
         var autoDiscoverElement = rootElement.Element("AutoDiscover");
 
@@ -39,7 +42,7 @@ class FlexRefConfigurationFile
             .Select(name => name!)
             .ToList();
 
-        return new FlexRefConfigurationFile
+        return new FlexRefConfigurationFile(RootDirectory)
         {
             UseAutoDiscover = autoDiscoverElement != null,
             AutoDiscoverExclusions = autoDiscoverExclusions,
@@ -47,7 +50,7 @@ class FlexRefConfigurationFile
         };
     }
 
-    public static void CreateDefaultConfigFile(DirectoryInfo rootDirectory, List<string> discoveredPackageIds)
+    public void CreateDefaultConfigFile(List<string> discoveredPackageIds)
     {
         var sortedPackageIds = discoveredPackageIds
             .OrderBy(id => id, StringComparer.OrdinalIgnoreCase)
@@ -64,6 +67,6 @@ class FlexRefConfigurationFile
         }
 
         var document = new XDocument(rootElement);
-        XmlFileHelper.SaveWithoutDeclaration(document, GetConfigFilePath(rootDirectory));
+        XmlFileHelper.SaveWithoutDeclaration(document, ConfigFilePath);
     }
 }

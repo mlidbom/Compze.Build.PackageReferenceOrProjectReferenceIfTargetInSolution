@@ -6,14 +6,16 @@ static class SyncCommand
     {
         Console.WriteLine($"Syncing FlexRef in: {rootDirectory.FullName}");
 
-        if (!FlexRefConfigurationFile.ExistsIn(rootDirectory))
+        var configFile = new FlexRefConfigurationFile(rootDirectory);
+
+        if (!configFile.Exists())
         {
-            Console.Error.WriteLine($"Error: {FlexRefConfigurationFile.GetConfigFilePath(rootDirectory)} not found.");
+            Console.Error.WriteLine($"Error: {configFile.ConfigFilePath} not found.");
             Console.Error.WriteLine("Run 'flexref init' first to create the configuration.");
             return 1;
         }
 
-        var configuration = FlexRefConfigurationFile.LoadFrom(rootDirectory);
+        var configuration = configFile.Load();
 
         Console.WriteLine("Scanning projects...");
         var allProjects = ProjectFileScanner.ScanAllProjects(rootDirectory);

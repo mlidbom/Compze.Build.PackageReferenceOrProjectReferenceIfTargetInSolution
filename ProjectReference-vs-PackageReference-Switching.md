@@ -178,7 +178,7 @@ UsePackageReference_MyProj_LibB=true
 
 ### `Directory.Build.props` (repo root)
 
-Import `FlexRef.props` (which reads the `.slnx` and exposes `_SwitchRef_SolutionProjects` — a string where each project filename is wrapped in `|` delimiters), then declare one property per dependency:
+Import `FlexRef.props` (which reads the `.slnx` and exposes `_FlexRef_SolutionProjects` — a string where each project filename is wrapped in `|` delimiters), then declare one property per dependency:
 
 ```xml
 <!-- Import shared infrastructure -->
@@ -190,14 +190,14 @@ Import `FlexRef.props` (which reads the `.slnx` and exposes `_SwitchRef_Solution
   <!-- LibA -->
   <UsePackageReference_MyProj_LibA
       Condition="'$(UsePackageReference_MyProj_LibA)' != 'true'
-               And '$(_SwitchRef_SolutionProjects)' != ''
-               And !$(_SwitchRef_SolutionProjects.Contains('|LibA.csproj|'))">true</UsePackageReference_MyProj_LibA>
+               And '$(_FlexRef_SolutionProjects)' != ''
+               And !$(_FlexRef_SolutionProjects.Contains('|LibA.csproj|'))">true</UsePackageReference_MyProj_LibA>
 
   <!-- LibB -->
   <UsePackageReference_MyProj_LibB
       Condition="'$(UsePackageReference_MyProj_LibB)' != 'true'
-               And '$(_SwitchRef_SolutionProjects)' != ''
-               And !$(_SwitchRef_SolutionProjects.Contains('|LibB.csproj|'))">true</UsePackageReference_MyProj_LibB>
+               And '$(_FlexRef_SolutionProjects)' != ''
+               And !$(_FlexRef_SolutionProjects.Contains('|LibB.csproj|'))">true</UsePackageReference_MyProj_LibB>
 </PropertyGroup>
 ```
 
@@ -262,7 +262,7 @@ For the full solution, just launch the IDE normally — no env vars, no script n
 
 ## How Each Scenario Flows
 
-| Scenario | `$(NCrunch)` | `$(_SwitchRef_SolutionProjects)` | `UsePackageReference_MyProj_LibA` | Result |
+| Scenario | `$(NCrunch)` | `$(_FlexRef_SolutionProjects)` | `UsePackageReference_MyProj_LibA` | Result |
 |---|---|---|---|---|
 | VS/Rider, full solution (LibA included) | unset | set, contains `|LibA.csproj|` | empty → false | **ProjectReference** |
 | VS/Rider, consumer-only (LibA absent) | unset | set, no `|LibA.csproj|` | `true` | **PackageReference** |
@@ -278,7 +278,7 @@ For the full solution, just launch the IDE normally — no env vars, no script n
 The shared infrastructure parses `.slnx` (XML solution format) using `Regex` property functions to extract project filenames. Classic `.sln` files are not supported. .NET 10+ SDK defaults to `.slnx`; for older SDKs, migrate with `dotnet sln migrate`.
 
 ### String Matching
-The `|` delimiters around each extracted filename in `_SwitchRef_SolutionProjects` ensure exact matching — `Company.LibA.csproj` won't false-match against `|LibA.csproj|`. However, if two genuinely different projects share the same `.csproj` filename, rename one to be unique.
+The `|` delimiters around each extracted filename in `_FlexRef_SolutionProjects` ensure exact matching — `Company.LibA.csproj` won't false-match against `|LibA.csproj|`. However, if two genuinely different projects share the same `.csproj` filename, rename one to be unique.
 
 ### `$(SolutionPath)` in CLI Builds
 `dotnet build` without a solution context leaves `$(SolutionPath)` empty, which falls through to ProjectReference (the safe default). This may fail if the sibling repo isn't checked out alongside. Adding an `Exists()` guard on the ProjectReference path handles this:

@@ -38,13 +38,13 @@ After the import, add one property per switchable dependency:
   <PropertyGroup>
     <UsePackageReference_Acme_Utilities
         Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'
-                 And '$(_SwitchRef_SolutionProjects)' != ''
-                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</UsePackageReference_Acme_Utilities>
+                 And '$(_FlexRef_SolutionProjects)' != ''
+                 And !$(_FlexRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</UsePackageReference_Acme_Utilities>
 
     <UsePackageReference_Acme_Core
         Condition="'$(UsePackageReference_Acme_Core)' != 'true'
-                 And '$(_SwitchRef_SolutionProjects)' != ''
-                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</UsePackageReference_Acme_Core>
+                 And '$(_FlexRef_SolutionProjects)' != ''
+                 And !$(_FlexRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</UsePackageReference_Acme_Core>
   </PropertyGroup>
 ```
 

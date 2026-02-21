@@ -30,20 +30,20 @@
     <!-- Acme.Utilities -->
     <UsePackageReference_Acme_Utilities
         Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'
-                 And '$(_SwitchRef_SolutionProjects)' != ''
-                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</UsePackageReference_Acme_Utilities>
+                 And '$(_FlexRef_SolutionProjects)' != ''
+                 And !$(_FlexRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</UsePackageReference_Acme_Utilities>
 
     <!-- Acme.Core -->
     <UsePackageReference_Acme_Core
         Condition="'$(UsePackageReference_Acme_Core)' != 'true'
-                 And '$(_SwitchRef_SolutionProjects)' != ''
-                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</UsePackageReference_Acme_Core>
+                 And '$(_FlexRef_SolutionProjects)' != ''
+                 And !$(_FlexRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</UsePackageReference_Acme_Core>
 
     <!-- Acme.Data -->
     <UsePackageReference_Acme_Data
         Condition="'$(UsePackageReference_Acme_Data)' != 'true'
-                 And '$(_SwitchRef_SolutionProjects)' != ''
-                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Data.csproj|'))">true</UsePackageReference_Acme_Data>
+                 And '$(_FlexRef_SolutionProjects)' != ''
+                 And !$(_FlexRef_SolutionProjects.Contains('|Acme.Data.csproj|'))">true</UsePackageReference_Acme_Data>
 
   </PropertyGroup>
 

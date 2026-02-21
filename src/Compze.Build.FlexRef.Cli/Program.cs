@@ -26,13 +26,15 @@ static class Program
 
     static int PrintUsageAndReturnError()
     {
-        Console.WriteLine("Usage: flexref <command> [directory]");
-        Console.WriteLine();
-        Console.WriteLine("Commands:");
-        Console.WriteLine("  init   Create FlexRef.config.xml and build/FlexRef.props");
-        Console.WriteLine("  sync   Update all managed files based on configuration");
-        Console.WriteLine();
-        Console.WriteLine("If [directory] is omitted, the current directory is used.");
+        Console.WriteLine("""
+            Usage: flexref <command> [directory]
+
+            Commands:
+              init   Create FlexRef.config.xml and build/FlexRef.props
+              sync   Update all managed files based on configuration
+
+            If [directory] is omitted, the current directory is used.
+            """);
         return 1;
     }
 }

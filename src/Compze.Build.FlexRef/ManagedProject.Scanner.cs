@@ -8,7 +8,7 @@ partial class ManagedProject
     {
         static readonly string[] DirectoriesToSkip = ["bin", "obj", "node_modules", ".git", ".vs", ".idea"];
 
-        public static List<ManagedProject> ScanAllProjects(DirectoryInfo rootDirectory)
+        internal static List<ManagedProject> ScanDirectory(DirectoryInfo rootDirectory)
         {
             using var projectCollection = new ProjectCollection();
             return FindCsprojFilesRecursively(rootDirectory)

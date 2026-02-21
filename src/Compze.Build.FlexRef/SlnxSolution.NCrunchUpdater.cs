@@ -81,7 +81,7 @@ partial class SlnxSolution
             }
 
             // Remove CustomBuildProperties element entirely if it has no entries
-            if(customBuildProperties != null && !customBuildProperties.HasElements)
+            if(customBuildProperties is { HasElements: false })
                 customBuildProperties.Remove();
 
             document.SaveWithoutDeclaration(file.FullName);

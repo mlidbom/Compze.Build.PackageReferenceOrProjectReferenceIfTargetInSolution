@@ -56,7 +56,7 @@ partial class ManagedProject
         if(_allProjects != null)
             throw new InvalidOperationException("Projects have already been scanned. Scanning may only be performed once.");
 
-        _allProjects = Scanner.ScanAllProjects(rootDirectory);
+        _allProjects = Scanner.ScanDirectory(rootDirectory);
         return _allProjects;
     }
 

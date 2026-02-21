@@ -1,5 +1,3 @@
-using System.Xml.Linq;
-
 namespace Compze.Build.FlexRef;
 
 partial class SlnxSolution
@@ -21,8 +19,8 @@ partial class SlnxSolution
 
     public List<FlexReference> FindAbsentFlexReferences() =>
         ManagedProject.FlexReferences
-            .Where(package => !ProjectFileNames
-                .Contains(package.CsprojFile.Name, StringComparer.OrdinalIgnoreCase))
-            .OrderBy(package => package.PackageId, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+                      .Where(package => !ProjectFileNames
+                                           .Contains(package.CsprojFile.Name, StringComparer.OrdinalIgnoreCase))
+                      .OrderBy(package => package.PackageId, StringComparer.OrdinalIgnoreCase)
+                      .ToList();
 }

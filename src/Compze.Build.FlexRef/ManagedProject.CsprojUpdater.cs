@@ -39,7 +39,7 @@ partial class ManagedProject
             foreach(var itemGroup in rootElement.Elements("ItemGroup").ToList())
             {
                 var referencesToRemove = itemGroup.Elements()
-                                                  .Where(element => IsFlexReference(element))
+                                                  .Where(IsFlexReference)
                                                   .ToList();
 
                 foreach(var reference in referencesToRemove)

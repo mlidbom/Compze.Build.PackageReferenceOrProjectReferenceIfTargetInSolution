@@ -6,9 +6,9 @@ partial class ManagedProject
 {
     static class CsprojUpdater
     {
-        public static void UpdateIfNeeded(ManagedProject project, IReadOnlyList<FlexReference> flexReferences)
+        public static void UpdateIfNeeded(ManagedProject project, FlexRefWorkspace workspace)
         {
-            var referencedFlexReferences = project.FindFlexReferences(flexReferences);
+            var referencedFlexReferences = project.FindFlexReferences(workspace);
 
             if(referencedFlexReferences.Count == 0)
                 return;
@@ -16,7 +16,7 @@ partial class ManagedProject
             var document = XDocument.Load(project.CsprojFile.FullName);
             var rootElement = document.Root!;
 
-            RemoveExistingFlexReferences(rootElement, flexReferences);
+            RemoveExistingFlexReferences(rootElement, workspace.FlexReferences);
             AppendFlexReferencePairs(rootElement, project.CsprojFile, referencedFlexReferences);
 
             document.SaveWithoutDeclaration(project.CsprojFile.FullName);

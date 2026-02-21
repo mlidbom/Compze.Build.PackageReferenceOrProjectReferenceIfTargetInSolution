@@ -29,18 +29,18 @@ static class SyncCommand
 
         Console.WriteLine();
         Console.WriteLine("Updating Directory.Build.props...");
-        DirectoryBuildPropsFileUpdater.UpdateOrCreate(rootDirectory, workspace.FlexReferences);
+        DirectoryBuildPropsFileUpdater.UpdateOrCreate(rootDirectory, workspace);
 
         Console.WriteLine();
         Console.WriteLine("Updating .csproj files...");
         foreach(var project in workspace.AllProjects)
-            project.UpdateCsprojIfNeeded(workspace.FlexReferences);
+            project.UpdateCsprojIfNeeded(workspace);
 
         Console.WriteLine();
         Console.WriteLine("Updating NCrunch solution files...");
         var solutions = SlnxSolution.FindAndParseAllSolutions(rootDirectory);
         foreach(var solution in solutions)
-            solution.UpdateNCrunchFileIfNeeded(workspace.FlexReferences);
+            solution.UpdateNCrunchFileIfNeeded(workspace);
 
         Console.WriteLine();
         Console.WriteLine("Sync complete.");

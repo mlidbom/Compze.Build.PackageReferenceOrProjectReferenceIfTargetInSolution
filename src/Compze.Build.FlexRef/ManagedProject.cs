@@ -48,14 +48,14 @@ partial class ManagedProject
     internal static List<FlexReference> ResolveFlexReferences(FlexRefConfigurationFile configuration, List<ManagedProject> allProjects) =>
         FlexReferenceResolver.Resolve(configuration, allProjects);
 
-    public void UpdateCsprojIfNeeded(IReadOnlyList<FlexReference> flexReferences) =>
-        CsprojUpdater.UpdateIfNeeded(this, flexReferences);
+    public void UpdateCsprojIfNeeded(FlexRefWorkspace workspace) =>
+        CsprojUpdater.UpdateIfNeeded(this, workspace);
 
-    public List<FlexReference> FindFlexReferences(IReadOnlyList<FlexReference> flexReferences)
+    public List<FlexReference> FindFlexReferences(FlexRefWorkspace workspace)
     {
         var result = new List<FlexReference>();
 
-        foreach(var package in flexReferences)
+        foreach(var package in workspace.FlexReferences)
         {
             if(CsprojFile.FullName.EqualsIgnoreCase(package.CsprojFile.FullName))
                 continue;

@@ -6,9 +6,9 @@ partial class SlnxSolution
 {
     static class NCrunchUpdater
     {
-        public static void UpdateOrCreate(SlnxSolution solution, IReadOnlyList<FlexReference> flexReferences)
+        public static void UpdateOrCreate(SlnxSolution solution, FlexRefWorkspace workspace)
         {
-            var absentPackages = solution.FindAbsentFlexReferences(flexReferences);
+            var absentPackages = solution.FindAbsentFlexReferences(workspace);
             var ncrunchFile = DeriveNCrunchFile(solution.SlnxFile);
 
             if(ncrunchFile.Exists)

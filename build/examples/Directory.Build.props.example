@@ -10,6 +10,7 @@
 
   <!-- Import shared infrastructure (parses .slnx project list) -->
   <Import Project="$(MSBuildThisFileDirectory)build\PackageReferenceOrProjectReferenceIfTargetInSolution.props" />
+  <!-- Or wherever you placed the .props file from the NuGet package -->
 
   <!--
     Declare each switchable dependency below.

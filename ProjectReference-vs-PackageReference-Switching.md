@@ -308,7 +308,7 @@ The recommended hybrid approach has been packaged as reusable tooling in the `bu
 
 | File | Purpose |
 |---|---|
-| `build/PackageReferenceOrProjectReferenceIfTargetInSolution.props` | Shared MSBuild infrastructure — import once per repo |
+| `src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/PackageReferenceOrProjectReferenceIfTargetInSolution.props` | Shared MSBuild infrastructure — import once per repo |
 | `src/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution/README.md` | Usage guide (also displayed on NuGet.org) |
 | `build/examples/Directory.Build.props.example` | Example showing per-dependency flag declarations |
 | `build/examples/MyApp.csproj.example` | Example showing conditional ItemGroups in a project file |

@@ -13,9 +13,9 @@
     <Description>Solution-aware MSBuild reference resolution for .NET projects. Automatically switches between ProjectReference and PackageReference based on which projects are in the current .slnx solution.</Description>
     <Authors>MagnusLidbom</Authors>
     <Copyright>Copyright (c) Lidbom Solutions AB. All rights reserved.</Copyright>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/mlidbom/Compze</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/mlidbom/Compze</RepositoryUrl>
+    <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mlidbom/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mlidbom/Compze.Build.PackageReferenceOrProjectReferenceIfTargetInSolution</RepositoryUrl>
     <PackageTags>msbuild;nuget;project-reference;package-reference;solution;build;dotnet</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
@@ -33,8 +33,7 @@
       in the consumer's project directory. The consumer then copies it to their
       build/ folder and imports it from Directory.Build.props.
     -->
-    <Content Include="..\..\build\PackageReferenceOrProjectReferenceIfTargetInSolution.props"
-             Link="PackageReferenceOrProjectReferenceIfTargetInSolution.props"
+    <Content Include="PackageReferenceOrProjectReferenceIfTargetInSolution.props"
              Pack="true"
              PackagePath="contentFiles/any/any/" />
 

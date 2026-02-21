@@ -52,14 +52,6 @@ The tool modifies files in place with no preview option. For a tool that rewrite
 
 The only tests are the example Acme.* tests that exercise the *output* of the tool indirectly (do the generated csproj files build?). There are no unit tests for the tool's logic — parsing, resolving, updating. For a tool that generates MSBuild boilerplate, regression tests comparing expected vs actual XML output would catch bugs early.
 
-### 15. Publish workflow doesn't run on a matrix
-
-Not a problem today, but the tool generates backslash paths (#9) and runs on Linux CI. If cross-platform correctness ever matters, running the build-and-test workflow on both `windows-latest` and `ubuntu-latest` would catch path separator issues.
-
-### 16. `fetch-depth: 0` in build-and-test
-
-`build-and-test.yml` line 13 uses `fetch-depth: 0` (full clone). This is needed for MinVer versioning during the `dotnet pack` step, so it's correct — just noting it's intentional.
-
 ---
 
 ## Minor / Style

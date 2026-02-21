@@ -29,7 +29,7 @@ static class SyncCommand
 
         Console.WriteLine();
         Console.WriteLine("Updating Directory.Build.props...");
-        DirectoryBuildPropsFileUpdater.UpdateOrCreate(rootDirectory, flexReferences);
+        DirectoryBuildPropsFileUpdater.UpdateOrCreate(rootDirectory);
 
         Console.WriteLine();
         Console.WriteLine("Updating .csproj files...");

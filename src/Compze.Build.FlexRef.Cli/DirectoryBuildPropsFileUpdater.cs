@@ -2,75 +2,86 @@ using System.Xml.Linq;
 
 namespace Compze.Build.FlexRef.Cli;
 
-static class DirectoryBuildPropsFileUpdater
+class DirectoryBuildPropsFileUpdater
 {
     const string FileName = "Directory.Build.props";
 
-    public static void UpdateOrCreate(DirectoryInfo rootDirectory, List<FlexReference> flexReferences)
+    readonly string _filePath;
+    readonly XDocument _document;
+    readonly XElement _rootElement;
+
+    DirectoryBuildPropsFileUpdater(DirectoryInfo rootDirectory)
     {
-        var filePath = Path.Combine(rootDirectory.FullName, FileName);
-        XDocument document;
-        XElement rootElement;
+        _filePath = Path.Combine(rootDirectory.FullName, FileName);
 
-        if (File.Exists(filePath))
+        if(File.Exists(_filePath))
         {
-            document = XDocument.Load(filePath);
-            rootElement = document.Root
+            _document = XDocument.Load(_filePath);
+            _rootElement = _document.Root
                 ?? throw new InvalidOperationException($"Invalid {FileName}: missing root element.");
-        }
-        else
+        } else
         {
-            rootElement = new XElement("Project");
-            document = new XDocument(rootElement);
+            _rootElement = new XElement("Project");
+            _document = new XDocument(_rootElement);
         }
-
-        RemoveExistingFlexRefImport(rootElement);
-        RemoveExistingUsePackageReferenceProperties(rootElement);
-
-        AddFlexRefImport(rootElement);
-        AddUsePackageReferenceProperties(rootElement, flexReferences);
-
-        XmlFileHelper.SaveWithoutDeclaration(document, filePath);
-        Console.WriteLine($"  Updated: {filePath}");
     }
 
-    static void RemoveExistingFlexRefImport(XElement rootElement)
+    public static void UpdateOrCreate(DirectoryInfo rootDirectory)
     {
-        var flexRefImports = rootElement.Elements("Import")
+        var updater = new DirectoryBuildPropsFileUpdater(rootDirectory);
+        updater.Update();
+    }
+
+    void Update()
+    {
+        RemoveExistingFlexRefImport();
+        RemoveExistingUsePackageReferenceProperties();
+
+        AddFlexRefImport();
+        AddUsePackageReferenceProperties();
+
+        XmlFileHelper.SaveWithoutDeclaration(_document, _filePath);
+        Console.WriteLine($"  Updated: {_filePath}");
+    }
+
+    void RemoveExistingFlexRefImport()
+    {
+        var flexRefImports = _rootElement.Elements("Import")
             .Where(element => element.Attribute("Project")?.Value?.Contains("FlexRef.props") == true)
             .ToList();
 
-        foreach (var importElement in flexRefImports)
+        foreach(var importElement in flexRefImports)
             importElement.RemoveWithPrecedingComment();
     }
 
-    static void RemoveExistingUsePackageReferenceProperties(XElement rootElement)
+    void RemoveExistingUsePackageReferenceProperties()
     {
-        foreach (var propertyGroup in rootElement.Elements("PropertyGroup").ToList())
+        foreach(var propertyGroup in _rootElement.Elements("PropertyGroup").ToList())
         {
             var propertiesToRemove = propertyGroup.Elements()
                 .Where(element => element.Name.LocalName.StartsWith("UsePackageReference_"))
                 .ToList();
 
-            foreach (var property in propertiesToRemove)
+            foreach(var property in propertiesToRemove)
                 property.RemoveWithPrecedingComment();
 
-            if (!propertyGroup.HasElements)
+            if(!propertyGroup.HasElements)
                 propertyGroup.RemoveWithPrecedingComment();
         }
     }
 
-    static void AddFlexRefImport(XElement rootElement)
+    void AddFlexRefImport()
     {
         var importPath = FlexRefPropsFileWriter.GetMsBuildImportProjectValue();
-        rootElement.Add(
+        _rootElement.Add(
             new XComment(" Import FlexRef infrastructure (reads solution content) "),
             new XElement("Import", new XAttribute("Project", importPath)));
     }
 
-    static void AddUsePackageReferenceProperties(XElement rootElement, List<FlexReference> flexReferences)
+    void AddUsePackageReferenceProperties()
     {
-        if (flexReferences.Count == 0) return;
+        var flexReferences = ManagedProject.FlexReferences;
+        if(flexReferences.Count == 0) return;
 
         var sortedPackages = flexReferences
             .OrderBy(package => package.PackageId, StringComparer.OrdinalIgnoreCase)
@@ -78,7 +89,7 @@ static class DirectoryBuildPropsFileUpdater
 
         var propertyGroup = new XElement("PropertyGroup");
 
-        foreach (var package in sortedPackages)
+        foreach(var package in sortedPackages)
         {
             var conditionValue =
                 $"'$({package.PropertyName})' != 'true'"
@@ -92,9 +103,8 @@ static class DirectoryBuildPropsFileUpdater
                     "true"));
         }
 
-        rootElement.Add(
+        _rootElement.Add(
             new XComment(" Per-dependency auto-detection managed by FlexRef "),
             propertyGroup);
     }
-
 }

@@ -1,14 +1,15 @@
 <Project>
 
   <!--
-    Example Directory.Build.props showing how to use SwitchableReferences.
+    Example Directory.Build.props showing how to use
+    PackageReferenceOrProjectReferenceIfTargetInSolution.
 
     This file goes at your repository root. Adjust the import path to
-    wherever you placed SwitchableReferences.props.
+    wherever you placed the .props file.
   -->
 
   <!-- Import shared infrastructure (parses .slnx project list) -->
-  <Import Project="$(MSBuildThisFileDirectory)build\SwitchableReferences.props" />
+  <Import Project="$(MSBuildThisFileDirectory)build\PackageReferenceOrProjectReferenceIfTargetInSolution.props" />
 
   <!--
     Declare each switchable dependency below.

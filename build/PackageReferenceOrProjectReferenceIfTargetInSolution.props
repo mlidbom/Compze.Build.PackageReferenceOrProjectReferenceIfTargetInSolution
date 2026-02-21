@@ -1,13 +1,16 @@
 <Project>
 
   <!--
-    SwitchableReferences.props — Shared MSBuild infrastructure for switching
-    between ProjectReference and PackageReference based on solution context.
+    PackageReferenceOrProjectReferenceIfTargetInSolution.props
+
+    Shared MSBuild infrastructure for switching between ProjectReference
+    and PackageReference based on solution context.
 
     Import this file in your Directory.Build.props BEFORE declaring any
-    per-dependency flag derivation properties.
+    per-dependency properties.
 
-    See SwitchableReferences.README.md for full usage instructions.
+    See PackageReferenceOrProjectReferenceIfTargetInSolution.README.md
+    for full usage instructions.
   -->
 
   <!--

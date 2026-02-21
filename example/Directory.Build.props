@@ -1,7 +1,7 @@
 <Project>
 
   <!--
-    Directory.Build.props for the SwitchableReferences example workspace.
+    Directory.Build.props for the example workspace.
     Import the shared infrastructure, then declare switchable dependency flags.
   -->
 
@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <!-- Import shared infrastructure (reads solution content) -->
-  <Import Project="$(MSBuildThisFileDirectory)..\build\SwitchableReferences.props" />
+  <Import Project="$(MSBuildThisFileDirectory)..\build\PackageReferenceOrProjectReferenceIfTargetInSolution.props" />
 
   <!--
     Per-dependency auto-detection.

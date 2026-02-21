@@ -36,7 +36,7 @@ static class SyncCommand
         Console.WriteLine();
         Console.WriteLine("Updating .csproj files...");
         foreach(var project in allProjects)
-            CsprojFileUpdater.UpdateIfNeeded(project, flexReferences);
+            project.UpdateCsprojIfNeeded(flexReferences);
 
         Console.WriteLine();
         Console.WriteLine("Updating NCrunch solution files...");
@@ -49,7 +49,7 @@ static class SyncCommand
         return 0;
     }
 
-    static List<FlexReference> ResolveFlexReferences(FlexRefConfigurationFile configuration, List<DiscoveredProject> allProjects)
+    static List<FlexReference> ResolveFlexReferences(FlexRefConfigurationFile configuration, List<ManagedProject> allProjects)
     {
         var packableProjects = allProjects
                               .Where(project => project is { IsPackable: true, PackageId: not null })

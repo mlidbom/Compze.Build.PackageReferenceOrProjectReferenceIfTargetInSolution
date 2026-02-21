@@ -6,12 +6,12 @@ static class ProjectFileScanner
 {
     static readonly string[] DirectoriesToSkip = ["bin", "obj", "node_modules", ".git", ".vs", ".idea"];
 
-    public static List<DiscoveredProject> ScanAllProjects(DirectoryInfo rootDirectory)
+    public static List<ManagedProject> ScanAllProjects(DirectoryInfo rootDirectory)
     {
         using var projectCollection = new ProjectCollection();
         return FindCsprojFilesRecursively(rootDirectory)
             .Select(csprojFile => ParseCsproj(csprojFile, projectCollection))
-            .OfType<DiscoveredProject>()
+            .OfType<ManagedProject>()
             .ToList();
     }
 
@@ -30,11 +30,11 @@ static class ProjectFileScanner
         }
     }
 
-    static DiscoveredProject? ParseCsproj(FileInfo csprojFile, ProjectCollection projectCollection)
+    static ManagedProject? ParseCsproj(FileInfo csprojFile, ProjectCollection projectCollection)
     {
         try
         {
-            return new DiscoveredProject(csprojFile, projectCollection);
+            return new ManagedProject(csprojFile, projectCollection);
         }
         catch (Exception exception)
         {

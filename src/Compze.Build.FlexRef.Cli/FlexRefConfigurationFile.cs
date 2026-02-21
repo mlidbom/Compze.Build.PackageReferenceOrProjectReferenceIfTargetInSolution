@@ -56,6 +56,7 @@ class FlexRefConfigurationFile
 
         if (sortedPackageIds.Count > 0)
         {
+            //sadly the XComments do not work like real Xml nodes and can only be built using a string, so we have to build the comment text manually here
             var packageLines = string.Join("\n", sortedPackageIds.Select(id => $"  <Package Name=\"{id}\" />"));
             rootElement.Add(new XComment(
                 $" Alternatively, list packages explicitly instead of using AutoDiscover:\n{packageLines}\n  "));

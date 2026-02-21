@@ -1,9 +1,13 @@
+using Microsoft.Build.Locator;
+
 namespace Compze.Build.FlexRef.Cli;
 
 static class Program
 {
     static int Main(string[] args)
     {
+        MSBuildLocator.RegisterDefaults();
+
         if (args.Length == 0)
             return PrintUsageAndReturnError();
 

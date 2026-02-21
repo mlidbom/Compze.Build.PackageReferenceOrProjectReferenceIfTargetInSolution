@@ -58,7 +58,31 @@ class FlexRefConfigurationFile
                               .ToList();
     }
 
-    public void CreateDefaultConfigFile(List<string> discoveredPackageIds)
+    public void CreateDefault()
+    {
+        Console.WriteLine("Scanning for packable projects...");
+        var allProjects = ProjectFileScanner.ScanAllProjects(RootDirectory);
+        var packableProjects = allProjects
+            .Where(project => project is { IsPackable: true, PackageId: not null })
+            .OrderBy(project => project.PackageId, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        Console.WriteLine($"  Found {packableProjects.Count} packable project(s):");
+        foreach (var project in packableProjects)
+        {
+            Console.WriteLine($"    - {project.PackageId} ({project.CsprojFileName})");
+
+            var expectedFileName = project.PackageId + ".csproj";
+            if (!project.CsprojFileName.Equals(expectedFileName, StringComparison.OrdinalIgnoreCase))
+                Console.Error.WriteLine($"      Warning: Package ID '{project.PackageId}' does not match file name '{project.CsprojFileName}'");
+        }
+
+        var packageIds = packableProjects.Select(project => project.PackageId!).ToList();
+        WriteDefaultConfigFile(packageIds);
+        Console.WriteLine($"  Created: {ConfigFilePath}");
+    }
+
+    void WriteDefaultConfigFile(List<string> discoveredPackageIds)
     {
         var sortedPackageIds = discoveredPackageIds
                               .OrderBy(id => id, StringComparer.OrdinalIgnoreCase)

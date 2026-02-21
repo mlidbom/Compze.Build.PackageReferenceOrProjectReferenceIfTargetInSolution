@@ -15,26 +15,7 @@ static class InitCommand
             return 1;
         }
 
-        Console.WriteLine("Scanning for packable projects...");
-        var allProjects = ProjectFileScanner.ScanAllProjects(rootDirectory);
-        var packableProjects = allProjects
-            .Where(project => project.IsPackable && project.PackageId != null)
-            .OrderBy(project => project.PackageId, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        Console.WriteLine($"  Found {packableProjects.Count} packable project(s):");
-        foreach (var project in packableProjects)
-        {
-            Console.WriteLine($"    - {project.PackageId} ({project.CsprojFileName})");
-
-            var expectedFileName = project.PackageId + ".csproj";
-            if (!project.CsprojFileName.Equals(expectedFileName, StringComparison.OrdinalIgnoreCase))
-                Console.Error.WriteLine($"      Warning: Package ID '{project.PackageId}' does not match file name '{project.CsprojFileName}'");
-        }
-
-        var packageIds = packableProjects.Select(project => project.PackageId!).ToList();
-        configFile.CreateDefaultConfigFile(packageIds);
-        Console.WriteLine($"  Created: {configFile.ConfigFilePath}");
+        configFile.CreateDefault();
 
         FlexRefPropsFileWriter.WriteToDirectory(rootDirectory);
 

@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using Microsoft.Build.Evaluation;
 
 namespace Compze.Build.FlexRef.Cli;
 
@@ -6,11 +6,21 @@ static class ProjectFileScanner
 {
     static readonly string[] DirectoriesToSkip = ["bin", "obj", "node_modules", ".git", ".vs", ".idea"];
 
-    public static List<DiscoveredProject> ScanAllProjects(DirectoryInfo rootDirectory) =>
-        FindCsprojFilesRecursively(rootDirectory)
-           .Select(ParseSingleCsproj)
-           .OfType<DiscoveredProject>()
-           .ToList();
+    public static List<DiscoveredProject> ScanAllProjects(DirectoryInfo rootDirectory)
+    {
+        var projectCollection = new ProjectCollection();
+        try
+        {
+            return FindCsprojFilesRecursively(rootDirectory)
+                .Select(csprojFile => ParseSingleCsproj(csprojFile, projectCollection))
+                .OfType<DiscoveredProject>()
+                .ToList();
+        }
+        finally
+        {
+            projectCollection.UnloadAllProjects();
+        }
+    }
 
     static IEnumerable<FileInfo> FindCsprojFilesRecursively(DirectoryInfo directory)
     {
@@ -27,35 +37,31 @@ static class ProjectFileScanner
         }
     }
 
-    static DiscoveredProject? ParseSingleCsproj(FileInfo csprojFile)
+    static DiscoveredProject? ParseSingleCsproj(FileInfo csprojFile, ProjectCollection projectCollection)
     {
         try
         {
-            var document = XDocument.Load(csprojFile.FullName);
-            var rootElement = document.Root;
-            if (rootElement == null) return null;
+            var msbuildProject = new Project(csprojFile.FullName, null, null, projectCollection);
 
-            var explicitPackageId = rootElement.Descendants("PackageId").FirstOrDefault()?.Value;
-            var isPackableValue = rootElement.Descendants("IsPackable").FirstOrDefault()?.Value;
+            var packageId = msbuildProject.GetNonEmptyPropertyOrNull("PackageId");
+            var isPackableValue = msbuildProject.GetNonEmptyPropertyOrNull("IsPackable");
             var isExplicitlyNotPackable = string.Equals(isPackableValue, "false", StringComparison.OrdinalIgnoreCase);
             var isExplicitlyPackable = string.Equals(isPackableValue, "true", StringComparison.OrdinalIgnoreCase);
-            var isPackable = !isExplicitlyNotPackable && (explicitPackageId != null || isExplicitlyPackable);
+            var isPackable = !isExplicitlyNotPackable && (packageId != null || isExplicitlyPackable);
 
-            var effectivePackageId = explicitPackageId
+            var effectivePackageId = packageId
                 ?? (isPackable ? Path.GetFileNameWithoutExtension(csprojFile.Name) : null);
 
-            var projectReferences = rootElement.Descendants("ProjectReference")
-                .Select(element => element.Attribute("Include")?.Value)
-                .Where(includePath => includePath != null)
-                .Select(includePath => new DiscoveredProjectReference(includePath!, Path.GetFileName(includePath!)))
+            var projectReferences = msbuildProject.GetItems("ProjectReference")
+                .Select(item => item.EvaluatedInclude)
+                .Where(includePath => !string.IsNullOrEmpty(includePath))
+                .Select(includePath => new DiscoveredProjectReference(includePath, Path.GetFileName(includePath)))
                 .ToList();
 
-            var packageReferences = rootElement.Descendants("PackageReference")
-                .Select(element => (
-                    Name: element.Attribute("Include")?.Value,
-                    Version: element.Attribute("Version")?.Value ?? ""))
-                .Where(pair => pair.Name != null)
-                .Select(pair => new DiscoveredPackageReference(pair.Name!, pair.Version))
+            var packageReferences = msbuildProject.GetItems("PackageReference")
+                .Select(item => (Name: item.EvaluatedInclude, Version: item.GetMetadataValue("Version")))
+                .Where(pair => !string.IsNullOrEmpty(pair.Name))
+                .Select(pair => new DiscoveredPackageReference(pair.Name, pair.Version))
                 .ToList();
 
             return new DiscoveredProject(

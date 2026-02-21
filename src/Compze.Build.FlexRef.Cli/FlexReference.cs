@@ -1,8 +1,15 @@
 namespace Compze.Build.FlexRef.Cli;
 
-record FlexReference(
-    string PackageId,
-    FileInfo CsprojFile)
+record FlexReference
 {
-    public string PropertyName { get; } = "UsePackageReference_" + PackageId.Replace('.', '_').Replace('-', '_');
+    public string PackageId { get; }
+    public FileInfo CsprojFile { get; }
+    public string PropertyName { get; }
+
+    public FlexReference(DiscoveredProject project)
+    {
+        PackageId = project.PackageId ?? throw new ArgumentException("Project must have a PackageId.", nameof(project));
+        CsprojFile = project.CsprojFile;
+        PropertyName = "UsePackageReference_" + PackageId.Replace('.', '_').Replace('-', '_');
+    }
 }

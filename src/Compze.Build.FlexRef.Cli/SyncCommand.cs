@@ -52,7 +52,7 @@ static class SyncCommand
     static List<FlexReference> ResolveFlexReferences(FlexRefConfigurationFile configuration, List<DiscoveredProject> allProjects)
     {
         var packableProjects = allProjects
-                              .Where(project => project.IsPackable && project.PackageId != null)
+                              .Where(project => project is { IsPackable: true, PackageId: not null })
                               .ToList();
 
         var resolvedPackages = new List<FlexReference>();
@@ -65,9 +65,7 @@ static class SyncCommand
                                 .Any(exclusion => exclusion.Equals(project.PackageId!, StringComparison.OrdinalIgnoreCase)))
                     continue;
 
-                resolvedPackages.Add(new FlexReference(
-                                         PackageId: project.PackageId!,
-                                         CsprojFile: project.CsprojFile));
+                resolvedPackages.Add(new FlexReference(project));
             }
         }
 
@@ -83,9 +81,7 @@ static class SyncCommand
 
             if(matchingProject != null)
             {
-                resolvedPackages.Add(new FlexReference(
-                                         PackageId: matchingProject.PackageId!,
-                                         CsprojFile: matchingProject.CsprojFile));
+                resolvedPackages.Add(new FlexReference(matchingProject));
             } else
             {
                 Console.Error.WriteLine(

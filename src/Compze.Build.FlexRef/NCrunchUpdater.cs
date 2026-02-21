@@ -11,19 +11,13 @@ class NCrunchUpdater
 
     public void UpdateOrCreate(SlnxSolution solution)
     {
-        var absentPackages = FindAbsentFlexReferencesFor(solution);
-        var ncrunchFile = DeriveNCrunchFile(solution.SlnxFile);
+        var absentPackages = solution.FindAbsentFlexReferences(_workspace.FlexReferences);
+        var ncrunchFile = solution.NCrunchFile;
 
         if(ncrunchFile.Exists)
             UpdateExistingNCrunchFile(ncrunchFile, absentPackages);
         else
             CreateNewNCrunchFile(ncrunchFile, absentPackages);
-    }
-
-    static FileInfo DeriveNCrunchFile(FileInfo slnxFile)
-    {
-        var solutionStem = Path.GetFileNameWithoutExtension(slnxFile.Name);
-        return new FileInfo(Path.Combine(slnxFile.DirectoryName!, solutionStem + ".v3.ncrunchsolution"));
     }
 
     static void CreateNewNCrunchFile(FileInfo file, List<FlexReference> absentPackages)
@@ -90,11 +84,4 @@ class NCrunchUpdater
         document.SaveWithoutDeclaration(file.FullName);
         Console.WriteLine($"  Updated: {file.FullName} ({absentPackages.Count} absent package(s))");
     }
-
-    List<FlexReference> FindAbsentFlexReferencesFor(SlnxSolution solution) =>
-        _workspace.FlexReferences
-            .Where(package => !solution.ProjectFileNames
-                                       .Contains(package.CsprojFile.Name, StringComparer.OrdinalIgnoreCase))
-            .OrderBy(package => package.PackageId, StringComparer.OrdinalIgnoreCase)
-            .ToList();
 }

@@ -57,7 +57,7 @@ partial class ManagedProject
                 var includeName = element.Attribute("Include")?.Value;
                 return includeName != null &&
                        FlexReferences.Any(package =>
-                                              package.PackageId.Equals(includeName, StringComparison.OrdinalIgnoreCase));
+                                              package.PackageId.EqualsIgnoreCase(includeName));
             }
 
             if(element.Name.LocalName == "ProjectReference")
@@ -66,7 +66,7 @@ partial class ManagedProject
                 if(includePath == null) return false;
                 var fileName = Path.GetFileName(includePath);
                 return FlexReferences.Any(package =>
-                                              package.CsprojFile.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+                                              package.CsprojFile.Name.EqualsIgnoreCase(fileName));
             }
 
             return false;

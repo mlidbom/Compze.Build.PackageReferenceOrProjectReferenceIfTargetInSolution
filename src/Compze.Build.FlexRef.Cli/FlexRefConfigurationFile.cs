@@ -73,7 +73,7 @@ class FlexRefConfigurationFile
             Console.WriteLine($"    - {project.PackageId} ({project.CsprojFile.Name})");
 
             var expectedFileName = project.PackageId + ".csproj";
-            if (!project.CsprojFile.Name.Equals(expectedFileName, StringComparison.OrdinalIgnoreCase))
+            if (!project.CsprojFile.Name.EqualsIgnoreCase(expectedFileName))
                 Console.Error.WriteLine($"      Warning: Package ID '{project.PackageId}' does not match file name '{project.CsprojFile.Name}'");
         }
 

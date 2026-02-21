@@ -31,9 +31,7 @@ partial class ManagedProject
 
         var explicitPackageId = msbuildProject.GetNonEmptyPropertyOrNull("PackageId");
         var isPackableValue = msbuildProject.GetNonEmptyPropertyOrNull("IsPackable");
-        var isExplicitlyNotPackable = string.Equals(isPackableValue, "false", StringComparison.OrdinalIgnoreCase);
-        var isExplicitlyPackable = string.Equals(isPackableValue, "true", StringComparison.OrdinalIgnoreCase);
-        IsPackable = !isExplicitlyNotPackable && (explicitPackageId != null || isExplicitlyPackable);
+        IsPackable = !isPackableValue.EqualsIgnoreCase("false") && (explicitPackageId != null || isPackableValue.EqualsIgnoreCase("true"));
 
         PackageId = explicitPackageId
             ?? (IsPackable ? Path.GetFileNameWithoutExtension(csprojFile.Name) : null);
@@ -76,14 +74,14 @@ partial class ManagedProject
 
         foreach(var package in FlexReferences)
         {
-            if(CsprojFile.FullName.Equals(package.CsprojFile.FullName, StringComparison.OrdinalIgnoreCase))
+            if(CsprojFile.FullName.EqualsIgnoreCase(package.CsprojFile.FullName))
                 continue;
 
             var hasMatchingProjectReference = ProjectReferences
-                                                     .Any(reference => reference.ResolvedFileName.Equals(package.CsprojFile.Name, StringComparison.OrdinalIgnoreCase));
+                                                     .Any(reference => reference.ResolvedFileName.EqualsIgnoreCase(package.CsprojFile.Name));
 
             var hasMatchingPackageReference = PackageReferences
-                                                     .Any(reference => reference.PackageName.Equals(package.PackageId, StringComparison.OrdinalIgnoreCase));
+                                                     .Any(reference => reference.PackageName.EqualsIgnoreCase(package.PackageId));
 
             if(hasMatchingProjectReference || hasMatchingPackageReference)
                 result.Add(package);

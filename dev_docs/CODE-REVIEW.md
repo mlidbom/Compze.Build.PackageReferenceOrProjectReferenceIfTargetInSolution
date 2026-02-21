@@ -38,10 +38,6 @@ The tool modifies files in place with no preview option. For a tool that rewrite
 
 ## Robustness / Edge Cases
 
-### 11. `FlexRefConfigurationFile.Load()` doesn't validate root element name
-
-`FlexRefConfigurationFile.cs` line 40: The code checks that a root element exists but doesn't verify it's `<FlexRef>`. A stray XML file named `FlexRef.config.xml` with `<Project>` as root would silently produce no results rather than warning the user.
-
 ## CI / Build Pipeline
 
 ### 14. No test project for the CLI tool itself

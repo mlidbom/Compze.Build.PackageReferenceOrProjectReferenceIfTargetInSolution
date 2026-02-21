@@ -30,10 +30,6 @@ This is clearly a conscious design choice (you don't want to manage version pinn
 
 `ManagedProject.CsprojUpdater.cs` lines 23–29: `RemoveExistingFlexReferences` strips all matching `PackageReference` and `ProjectReference` elements, then `AppendFlexReferencePairs` writes them back with `Version="*-*"`. If a user had `Version="2.1.0"` pinned, it's silently overwritten. This compounds issue #6 — running `flexref sync` is destructive to version information. Consider preserving the original version if one was present.
 
-### 8. Duplicated `DirectoriesToSkip` array
-
-`ManagedProject.Scanner.cs` line 9 and `SlnxSolution.Scanner.cs` line 9 both define `["bin", "obj", "node_modules", ".git", ".vs", ".idea"]`. Extract to a shared constant.
-
 ### 10. No `--dry-run` or diff mode
 
 The tool modifies files in place with no preview option. For a tool that rewrites `.csproj` and `Directory.Build.props` files, a `--dry-run` flag showing what would change would build user confidence. Not a bug, but a significant UX gap.
@@ -51,13 +47,5 @@ The tool modifies files in place with no preview option. For a tool that rewrite
 ### 14. No test project for the CLI tool itself
 
 The only tests are the example Acme.* tests that exercise the *output* of the tool indirectly (do the generated csproj files build?). There are no unit tests for the tool's logic — parsing, resolving, updating. For a tool that generates MSBuild boilerplate, regression tests comparing expected vs actual XML output would catch bugs early.
-
----
-
-## Minor / Style
-
-### 20. Inconsistent file naming: `CE` vs `Extensions` suffix
-
-`StringCE.cs`, `XDocumentCE.cs` use "CE" (Class Extensions?), while `XNodeExtensions.cs`, `ProjectExtensions.cs` use "Extensions". Pick one convention.
 
 ---

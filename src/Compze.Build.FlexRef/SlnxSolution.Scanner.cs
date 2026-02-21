@@ -6,8 +6,6 @@ partial class SlnxSolution
 {
     static class Scanner
     {
-        static readonly string[] DirectoriesToSkip = ["bin", "obj", "node_modules", ".git", ".vs", ".idea"];
-
         public static List<SlnxSolution> FindAndParseAll(DirectoryInfo rootDirectory) =>
             FindSlnxFilesRecursively(rootDirectory)
                .Select(ParseSlnx)
@@ -21,7 +19,7 @@ partial class SlnxSolution
 
             foreach(var subdirectory in directory.GetDirectories())
             {
-                if(DirectoriesToSkip.Contains(subdirectory.Name, StringComparer.OrdinalIgnoreCase))
+                if(ScannerDefaults.DirectoriesToSkip.Contains(subdirectory.Name, StringComparer.OrdinalIgnoreCase))
                     continue;
 
                 foreach(var file in FindSlnxFilesRecursively(subdirectory))

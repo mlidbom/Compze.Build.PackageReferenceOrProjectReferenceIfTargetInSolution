@@ -2,7 +2,7 @@ using System.Xml.Linq;
 
 namespace Compze.Build.FlexRef;
 
-static class XNodeExtensions
+static class XNodeCE
 {
     public static void RemoveWithPrecedingComment(this XNode @this)
     {

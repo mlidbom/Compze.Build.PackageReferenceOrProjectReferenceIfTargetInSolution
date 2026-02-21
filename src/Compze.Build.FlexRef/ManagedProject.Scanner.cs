@@ -6,8 +6,6 @@ partial class ManagedProject
 {
     static class Scanner
     {
-        static readonly string[] DirectoriesToSkip = ["bin", "obj", "node_modules", ".git", ".vs", ".idea"];
-
         internal static List<ManagedProject> ScanDirectory(DirectoryInfo rootDirectory)
         {
             using var projectCollection = new ProjectCollection();
@@ -24,7 +22,7 @@ partial class ManagedProject
 
             foreach(var subdirectory in directory.GetDirectories())
             {
-                if(DirectoriesToSkip.Contains(subdirectory.Name, StringComparer.OrdinalIgnoreCase))
+                if(ScannerDefaults.DirectoriesToSkip.Contains(subdirectory.Name, StringComparer.OrdinalIgnoreCase))
                     continue;
 
                 foreach(var file in FindCsprojFilesRecursively(subdirectory))

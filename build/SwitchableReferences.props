@@ -11,47 +11,64 @@
   -->
 
   <!--
-    Step 1: Read the .slnx file and extract project filenames.
+    Step 1: Locate the .slnx file.
 
-    Reads the solution XML, then uses Regex.Replace to wrap each
-    Project/@Path filename in | delimiters:
+    Two paths:
 
+    A) VS/Rider/dotnet CLI — $(SolutionPath) is set by the IDE/CLI and
+       points directly at the .slnx file.
+
+    B) NCrunch — $(SolutionPath) is unreliable in NCrunch's isolated
+       workspace. Set $(NcrunchSlnxRelativePathOverride) in the
+       .v3.ncrunchsolution CustomBuildProperties to the .slnx path
+       relative to Directory.Build.props. NCrunch must also be configured
+       to copy the .slnx to its workspace via
+       AdditionalFilesToIncludeForSolution.
+  -->
+
+  <!-- A) VS/Rider/dotnet CLI -->
+  <PropertyGroup Condition="'$(NCrunch)' != '1'
+                         And '$(SolutionPath)' != ''
+                         And '$(SolutionPath)' != '*Undefined*'
+                         And Exists('$(SolutionPath)')">
+    <_SwitchRef_SlnxPath>$(SolutionPath)</_SwitchRef_SlnxPath>
+  </PropertyGroup>
+
+  <!-- B) NCrunch — resolve override path relative to Directory.Build.props -->
+  <PropertyGroup Condition="'$(_SwitchRef_SlnxPath)' == ''
+                         And '$(NCrunch)' == '1'
+                         And '$(NcrunchSlnxRelativePathOverride)' != ''">
+    <_SwitchRef_SlnxPath>$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', 'Directory.Build.props'))$(NcrunchSlnxRelativePathOverride)</_SwitchRef_SlnxPath>
+  </PropertyGroup>
+
+  <!--
+    Step 2: Parse the .slnx and extract project filenames.
+
+    .slnx files list projects as XML like this:
         <Project Path="src/Acme.Core/Acme.Core.csproj" />
-                   becomes
-        <Project |Acme.Core.csproj| />
+
+    The regex matches each <Project> element's Path attribute, captures
+    the filename after the last /, and replaces the whole match with
+    |filename|:
+
+        <Project Path="src/Acme.Core/Acme.Core.csproj"  →  <Project |Acme.Core.csproj|
 
     The surrounding XML is kept but harmless — | never appears in
     normal XML content, so .Contains('|Acme.Core.csproj|') is an
     exact match against real project filenames.
 
-    This is skipped entirely when:
-    - NCrunch is running (NCrunch uses Custom Build Properties instead)
-    - No solution context exists (e.g. bare `dotnet build MyProject.csproj`)
-    - The solution file doesn't exist at the expected path
+    %28/%29 are MSBuild escapes for ( and ), &lt;/&gt; are XML escapes
+    for < and >.
+
+    The regex in normal notation:  <Project\s[^>]*Path="(?:[^"]*/)?([^"/]+)"
 
     $(_SwitchRef_SolutionProjects) is the public API for consumers.
   -->
-  <PropertyGroup Condition="'$(NCrunch)' != '1'
-                         And '$(SolutionPath)' != ''
-                         And '$(SolutionPath)' != '*Undefined*'
-                         And Exists('$(SolutionPath)')">
-    <!--
-      .slnx files list projects as XML like this:
-          <Project Path="src/Acme.Core/Acme.Core.csproj" />
-
-      The regex matches each Path="..." attribute, captures the filename
-      after the last /, and replaces the whole match with |filename|:
-
-          Path="src/Acme.Core/Acme.Core.csproj"  →  |Acme.Core.csproj|
-
-      %28 and %29 are MSBuild escapes for ( and ) which MSBuild would
-      otherwise interpret as its own syntax.
-
-      The regex in normal notation:  Path="(?:[^"]*/)?([^"/]+)"
-    -->
+  <PropertyGroup Condition="'$(_SwitchRef_SlnxPath)' != ''
+                         And Exists('$(_SwitchRef_SlnxPath)')">
     <_SwitchRef_SolutionProjects>$([System.Text.RegularExpressions.Regex]::Replace(
-        $([System.IO.File]::ReadAllText('$(SolutionPath)')),
-        'Path="%28?:[^"]*/%29?%28[^"/]+%29"',
+        $([System.IO.File]::ReadAllText('$(_SwitchRef_SlnxPath)')),
+        '&lt;Project\s[^&gt;]*Path="%28?:[^"]*/%29?%28[^"/]+%29"',
         '|$1|'))</_SwitchRef_SolutionProjects>
   </PropertyGroup>
 

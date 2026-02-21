@@ -8,7 +8,7 @@ static class SyncCommand
 
         var configFile = new FlexRefConfigurationFile(rootDirectory);
 
-        if (!configFile.Exists())
+        if(!configFile.Exists())
         {
             Console.Error.WriteLine($"Error: {configFile.ConfigFilePath} not found.");
             Console.Error.WriteLine("Run 'flexref init' first to create the configuration.");
@@ -22,7 +22,7 @@ static class SyncCommand
 
         var flexReferences = ResolveFlexReferences(configFile, allProjects);
         Console.WriteLine($"  Resolved {flexReferences.Count} flex reference(s):");
-        foreach (var package in flexReferences)
+        foreach(var package in flexReferences)
             Console.WriteLine($"    - {package.PackageId} ({package.CsprojFile.Name})");
 
         Console.WriteLine();
@@ -35,13 +35,13 @@ static class SyncCommand
 
         Console.WriteLine();
         Console.WriteLine("Updating .csproj files...");
-        foreach (var project in allProjects)
+        foreach(var project in allProjects)
             CsprojFileUpdater.UpdateIfNeeded(project, flexReferences);
 
         Console.WriteLine();
         Console.WriteLine("Updating NCrunch solution files...");
         var solutions = SlnxFileParser.FindAndParseAllSolutions(rootDirectory);
-        foreach (var solution in solutions)
+        foreach(var solution in solutions)
             NCrunchSolutionFileUpdater.UpdateOrCreate(solution, flexReferences);
 
         Console.WriteLine();
@@ -49,57 +49,54 @@ static class SyncCommand
         return 0;
     }
 
-    static List<FlexReference> ResolveFlexReferences(
-        FlexRefConfigurationFile configuration,
-        List<DiscoveredProject> allProjects)
+    static List<FlexReference> ResolveFlexReferences(FlexRefConfigurationFile configuration, List<DiscoveredProject> allProjects)
     {
         var packableProjects = allProjects
-            .Where(project => project.IsPackable && project.PackageId != null)
-            .ToList();
+                              .Where(project => project.IsPackable && project.PackageId != null)
+                              .ToList();
 
         var resolvedPackages = new List<FlexReference>();
 
-        if (configuration.UseAutoDiscover)
+        if(configuration.UseAutoDiscover)
         {
-            foreach (var project in packableProjects)
+            foreach(var project in packableProjects)
             {
-                if (configuration.AutoDiscoverExclusions
-                    .Any(exclusion => exclusion.Equals(project.PackageId!, StringComparison.OrdinalIgnoreCase)))
+                if(configuration.AutoDiscoverExclusions
+                                .Any(exclusion => exclusion.Equals(project.PackageId!, StringComparison.OrdinalIgnoreCase)))
                     continue;
 
                 resolvedPackages.Add(new FlexReference(
-                    PackageId: project.PackageId!,
-                    CsprojFile: project.CsprojFile));
+                                         PackageId: project.PackageId!,
+                                         CsprojFile: project.CsprojFile));
             }
         }
 
-        foreach (var explicitPackageName in configuration.ExplicitPackageNames)
+        foreach(var explicitPackageName in configuration.ExplicitPackageNames)
         {
-            if (resolvedPackages.Any(existing =>
-                existing.PackageId.Equals(explicitPackageName, StringComparison.OrdinalIgnoreCase)))
+            if(resolvedPackages.Any(existing =>
+                                        existing.PackageId.Equals(explicitPackageName, StringComparison.OrdinalIgnoreCase)))
                 continue;
 
             var matchingProject = packableProjects
-                .FirstOrDefault(project =>
-                    project.PackageId!.Equals(explicitPackageName, StringComparison.OrdinalIgnoreCase));
+               .FirstOrDefault(project =>
+                                   project.PackageId!.Equals(explicitPackageName, StringComparison.OrdinalIgnoreCase));
 
-            if (matchingProject != null)
+            if(matchingProject != null)
             {
                 resolvedPackages.Add(new FlexReference(
-                    PackageId: matchingProject.PackageId!,
-                    CsprojFile: matchingProject.CsprojFile));
-            }
-            else
+                                         PackageId: matchingProject.PackageId!,
+                                         CsprojFile: matchingProject.CsprojFile));
+            } else
             {
                 Console.Error.WriteLine(
                     $"  Warning: Explicit package '{explicitPackageName}' was not found in any project.");
             }
         }
 
-        foreach (var package in resolvedPackages)
+        foreach(var package in resolvedPackages)
         {
             var expectedFileName = package.PackageId + ".csproj";
-            if (!package.CsprojFile.Name.Equals(expectedFileName, StringComparison.OrdinalIgnoreCase))
+            if(!package.CsprojFile.Name.Equals(expectedFileName, StringComparison.OrdinalIgnoreCase))
             {
                 Console.Error.WriteLine(
                     $"  Warning: Package '{package.PackageId}' is in project file '{package.CsprojFile.Name}' (expected '{expectedFileName}')");
@@ -107,7 +104,7 @@ static class SyncCommand
         }
 
         return resolvedPackages
-            .OrderBy(package => package.PackageId, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+              .OrderBy(package => package.PackageId, StringComparer.OrdinalIgnoreCase)
+              .ToList();
     }
 }

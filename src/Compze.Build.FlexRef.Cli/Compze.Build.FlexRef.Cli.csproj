@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>flexref</ToolCommandName>
+
+    <PackageId>Compze.Build.FlexRef.Cli</PackageId>
+    <Description>CLI tool for managing FlexRef switchable references — automatically generates the boilerplate for switching between ProjectReference and PackageReference based on solution membership.</Description>
+    <Authors>MagnusLidbom</Authors>
+    <Copyright>Copyright (c) Lidbom Solutions AB. All rights reserved.</Copyright>
+    <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mlidbom/Compze.Build.FlexRef</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mlidbom/Compze.Build.FlexRef</RepositoryUrl>
+    <PackageTags>msbuild;nuget;project-reference;package-reference;solution;build;dotnet;cli</PackageTags>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\Compze.Build.FlexRef\FlexRef.props" LogicalName="FlexRef.props" />
+  </ItemGroup>
+
+</Project>

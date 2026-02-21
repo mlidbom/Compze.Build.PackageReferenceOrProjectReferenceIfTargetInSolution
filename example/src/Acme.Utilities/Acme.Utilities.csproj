@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -7,13 +6,11 @@
     <PackageId>Acme.Utilities</PackageId>
     <Version>1.0.0</Version>
   </PropertyGroup>
-
   <!-- Acme.Core — switchable reference -->
   <ItemGroup Condition="'$(UsePackageReference_Acme_Core)' == 'true'">
-    <PackageReference Include="Acme.Core" Version="1.0.0" />
+    <PackageReference Include="Acme.Core" Version="*-*" />
   </ItemGroup>
   <ItemGroup Condition="'$(UsePackageReference_Acme_Core)' != 'true'">
     <ProjectReference Include="..\Acme.Core\Acme.Core.csproj" />
   </ItemGroup>
-
 </Project>

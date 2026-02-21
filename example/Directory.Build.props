@@ -1,40 +1,19 @@
 <Project>
-
   <!--
     Directory.Build.props for the example workspace.
     Import the shared infrastructure, then declare switchable dependency flags.
   -->
-
   <!-- Suppress source-link Git queries (avoids errors in worktree checkouts) -->
   <PropertyGroup>
     <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
   </PropertyGroup>
-
-  <!-- Import shared infrastructure (reads solution content) -->
-  <Import Project="$(MSBuildThisFileDirectory)..\src\Compze.Build.FlexRef\FlexRef.props" />
-
-  <!--
-    Per-dependency auto-detection.
-
-    If already set (NCrunch / env var / CLI /p:), the existing value wins.
-    Otherwise, auto-detect from .slnx: use PackageReference if the project
-    is NOT in the current solution.
-    If neither fires, the property stays empty → ProjectReference (safe default).
-  -->
+  <!-- Import FlexRef infrastructure (reads solution content) -->
+  <Import Project="$(MSBuildThisFileDirectory)build\FlexRef.props" />
+  <!-- Per-dependency auto-detection managed by FlexRef -->
   <PropertyGroup>
-
     <!-- Acme.Core -->
-    <UsePackageReference_Acme_Core
-        Condition="'$(UsePackageReference_Acme_Core)' != 'true'
-                 And '$(_SwitchRef_SolutionProjects)' != ''
-                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</UsePackageReference_Acme_Core>
-
+    <UsePackageReference_Acme_Core Condition="'$(UsePackageReference_Acme_Core)' != 'true' And '$(_SwitchRef_SolutionProjects)' != '' And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</UsePackageReference_Acme_Core>
     <!-- Acme.Utilities -->
-    <UsePackageReference_Acme_Utilities
-        Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'
-                 And '$(_SwitchRef_SolutionProjects)' != ''
-                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</UsePackageReference_Acme_Utilities>
-
+    <UsePackageReference_Acme_Utilities Condition="'$(UsePackageReference_Acme_Utilities)' != 'true' And '$(_SwitchRef_SolutionProjects)' != '' And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</UsePackageReference_Acme_Utilities>
   </PropertyGroup>
-
 </Project>

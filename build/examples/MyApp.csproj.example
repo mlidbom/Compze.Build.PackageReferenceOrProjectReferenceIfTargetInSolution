@@ -4,8 +4,9 @@
     Example .csproj showing switchable references.
 
     Each switchable dependency is a pair of conditional ItemGroups.
-    The flag properties (_UsePackage_*) are computed in Directory.Build.props
-    before this file is evaluated.
+    The UsePackageReference_* properties are set in Directory.Build.props
+    (via auto-detection or NCrunch CustomBuildProperties) before this
+    file is evaluated.
   -->
 
   <PropertyGroup>
@@ -18,18 +19,18 @@
   <!-- ============================================================ -->
 
   <!-- Acme.Utilities — switchable reference -->
-  <ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' == 'true'">
+  <ItemGroup Condition="'$(UsePackageReference_Acme_Utilities)' == 'true'">
     <PackageReference Include="Acme.Utilities" Version="3.1.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' != 'true'">
+  <ItemGroup Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'">
     <ProjectReference Include="..\Acme.Utilities\Acme.Utilities.csproj" />
   </ItemGroup>
 
   <!-- Acme.Core — switchable reference -->
-  <ItemGroup Condition="'$(_UsePackage_AcmeCore)' == 'true'">
+  <ItemGroup Condition="'$(UsePackageReference_Acme_Core)' == 'true'">
     <PackageReference Include="Acme.Core" Version="2.0.4" />
   </ItemGroup>
-  <ItemGroup Condition="'$(_UsePackage_AcmeCore)' != 'true'">
+  <ItemGroup Condition="'$(UsePackageReference_Acme_Core)' != 'true'">
     <ProjectReference Include="..\Acme.Core\Acme.Core.csproj" />
   </ItemGroup>
 

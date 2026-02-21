@@ -9,10 +9,10 @@
   </PropertyGroup>
 
   <!-- Acme.Core — switchable reference -->
-  <ItemGroup Condition="'$(_UsePackage_AcmeCore)' == 'true'">
+  <ItemGroup Condition="'$(UsePackageReference_Acme_Core)' == 'true'">
     <PackageReference Include="Acme.Core" Version="1.0.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(_UsePackage_AcmeCore)' != 'true'">
+  <ItemGroup Condition="'$(UsePackageReference_Acme_Core)' != 'true'">
     <ProjectReference Include="..\Acme.Core\Acme.Core.csproj" />
   </ItemGroup>
 

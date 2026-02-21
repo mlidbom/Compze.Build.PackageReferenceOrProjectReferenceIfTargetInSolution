@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <!-- Acme.Utilities — switchable reference -->
-  <ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' == 'true'">
+  <ItemGroup Condition="'$(UsePackageReference_Acme_Utilities)' == 'true'">
     <PackageReference Include="Acme.Utilities" Version="1.0.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' != 'true'">
+  <ItemGroup Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'">
     <ProjectReference Include="..\Acme.Utilities\Acme.Utilities.csproj" />
   </ItemGroup>
 

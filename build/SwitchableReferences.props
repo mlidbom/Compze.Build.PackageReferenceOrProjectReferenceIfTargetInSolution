@@ -11,38 +11,13 @@
   -->
 
   <!--
-    Step 1: Locate the .slnx file.
+    Step 1: Parse the .slnx and extract project filenames.
 
-    Two paths:
-
-    A) VS/Rider/dotnet CLI — $(SolutionPath) is set by the IDE/CLI and
-       points directly at the .slnx file.
-
-    B) NCrunch — $(SolutionPath) is unreliable in NCrunch's isolated
-       workspace. Set $(NcrunchSlnxRelativePathOverride) in the
-       .v3.ncrunchsolution CustomBuildProperties to the .slnx path
-       relative to Directory.Build.props. NCrunch must also be configured
-       to copy the .slnx to its workspace via
-       AdditionalFilesToIncludeForSolution.
-  -->
-
-  <!-- A) VS/Rider/dotnet CLI -->
-  <PropertyGroup Condition="'$(NCrunch)' != '1'
-                         And '$(SolutionPath)' != ''
-                         And '$(SolutionPath)' != '*Undefined*'
-                         And Exists('$(SolutionPath)')">
-    <_SwitchRef_SlnxPath>$(SolutionPath)</_SwitchRef_SlnxPath>
-  </PropertyGroup>
-
-  <!-- B) NCrunch — resolve override path relative to Directory.Build.props -->
-  <PropertyGroup Condition="'$(_SwitchRef_SlnxPath)' == ''
-                         And '$(NCrunch)' == '1'
-                         And '$(NcrunchSlnxRelativePathOverride)' != ''">
-    <_SwitchRef_SlnxPath>$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', 'Directory.Build.props'))$(NcrunchSlnxRelativePathOverride)</_SwitchRef_SlnxPath>
-  </PropertyGroup>
-
-  <!--
-    Step 2: Parse the .slnx and extract project filenames.
+    For VS/Rider/dotnet CLI, $(SolutionPath) points directly at the .slnx.
+    This is skipped when NCrunch is running — NCrunch's .csproj parser
+    cannot evaluate property functions like File.ReadAllText, so it
+    must use explicit per-dependency flags via CustomBuildProperties
+    instead (see Step 2).
 
     .slnx files list projects as XML like this:
         <Project Path="src/Acme.Core/Acme.Core.csproj" />
@@ -62,12 +37,14 @@
 
     The regex in normal notation:  <Project\s[^>]*Path="(?:[^"]*/)?([^"/]+)"
 
-    $(_SwitchRef_SolutionProjects) is the public API for consumers.
+    $(_SwitchRef_SolutionProjects) is used in Step 2 by consumers.
   -->
-  <PropertyGroup Condition="'$(_SwitchRef_SlnxPath)' != ''
-                         And Exists('$(_SwitchRef_SlnxPath)')">
+  <PropertyGroup Condition="'$(NCrunch)' != '1'
+                         And '$(SolutionPath)' != ''
+                         And '$(SolutionPath)' != '*Undefined*'
+                         And Exists('$(SolutionPath)')">
     <_SwitchRef_SolutionProjects>$([System.Text.RegularExpressions.Regex]::Replace(
-        $([System.IO.File]::ReadAllText('$(_SwitchRef_SlnxPath)')),
+        $([System.IO.File]::ReadAllText('$(SolutionPath)')),
         '&lt;Project\s[^&gt;]*Path="%28?:[^"]*/%29?%28[^"/]+%29"',
         '|$1|'))</_SwitchRef_SolutionProjects>
   </PropertyGroup>
@@ -75,24 +52,27 @@
   <!--
     Step 2: Per-dependency flag derivation.
 
-    After importing this file, declare properties in your Directory.Build.props
-    for each switchable dependency using this two-line pattern:
+    After importing this file, declare one property per switchable
+    dependency in your Directory.Build.props:
 
     <PropertyGroup>
-      <_UsePackage_LibA Condition="'$(UsePackageReference_MyProj_LibA)' == 'true'">true</_UsePackage_LibA>
-      <_UsePackage_LibA Condition="'$(_UsePackage_LibA)' != 'true'
-                                 And '$(_SwitchRef_SolutionProjects)' != ''
-                                 And !$(_SwitchRef_SolutionProjects.Contains('|LibA.csproj|'))">true</_UsePackage_LibA>
+      <UsePackageReference_MyProj_LibA
+          Condition="'$(UsePackageReference_MyProj_LibA)' != 'true'
+                   And '$(_SwitchRef_SolutionProjects)' != ''
+                   And !$(_SwitchRef_SolutionProjects.Contains('|LibA.csproj|'))">true</UsePackageReference_MyProj_LibA>
     </PropertyGroup>
 
-    Line 1: Honours any explicit override (NCrunch Custom Build Properties / env var).
-    Line 2: Checks the parsed project list — uses PackageReference only if we
-             have solution context AND the project is NOT listed in it.
-             The | delimiters ensure exact filename matching (no false positives
-             from similarly-named projects like Company.LibA.csproj).
+    The Condition ensures:
+    - If already set (NCrunch / env var / CLI /p:), the existing value wins.
+    - If we have solution data and the project is absent, it's set to 'true'.
+    - Otherwise it stays empty → ProjectReference (the safe default).
+      (The '$(_SwitchRef_SolutionProjects)' != '' guard prevents the
+       .Contains() check from false-triggering when there's no solution
+       context — an empty string doesn't contain anything, so the negated
+       check would otherwise always succeed.)
 
-    If neither condition is met, the property stays empty/unset, which means
-    the .csproj defaulting to ProjectReference (the safe default).
+    The same property name is used everywhere: in .csproj conditions,
+    NCrunch CustomBuildProperties, and env var / CLI overrides.
   -->
 
 </Project>

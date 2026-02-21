@@ -13,35 +13,35 @@
   <!--
     Declare each switchable dependency below.
 
-    Convention:
-      - Override property:  UsePackageReference_{PackageName_with_underscores}
-      - Internal flag:      _UsePackage_{ShortName}
-      - Detect by:          |{Filename}.csproj| in _SwitchRef_SolutionProjects
+    Convention: UsePackageReference_{PackageName_with_underscores}
 
-    Line 1: Honour explicit override (NCrunch / env var / CLI /p:).
-    Line 2: Auto-detect from solution — use PackageReference if the project
-             is NOT listed in the current solution.
-    If neither fires, the flag stays empty → ProjectReference (safe default).
+    The same property name is used in .csproj conditions, NCrunch
+    CustomBuildProperties, and env var / CLI overrides.
+
+    If already set (NCrunch / env var / CLI /p:), the existing value wins.
+    Otherwise, auto-detect from .slnx: use PackageReference if the project
+    is NOT in the current solution.
+    If neither fires, the property stays empty → ProjectReference (safe default).
   -->
   <PropertyGroup>
 
     <!-- Acme.Utilities -->
-    <_UsePackage_AcmeUtilities Condition="'$(UsePackageReference_Acme_Utilities)' == 'true'">true</_UsePackage_AcmeUtilities>
-    <_UsePackage_AcmeUtilities Condition="'$(_UsePackage_AcmeUtilities)' != 'true'
-                                        And '$(_SwitchRef_SolutionProjects)' != ''
-                                        And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</_UsePackage_AcmeUtilities>
+    <UsePackageReference_Acme_Utilities
+        Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'
+                 And '$(_SwitchRef_SolutionProjects)' != ''
+                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</UsePackageReference_Acme_Utilities>
 
     <!-- Acme.Core -->
-    <_UsePackage_AcmeCore Condition="'$(UsePackageReference_Acme_Core)' == 'true'">true</_UsePackage_AcmeCore>
-    <_UsePackage_AcmeCore Condition="'$(_UsePackage_AcmeCore)' != 'true'
-                                   And '$(_SwitchRef_SolutionProjects)' != ''
-                                   And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</_UsePackage_AcmeCore>
+    <UsePackageReference_Acme_Core
+        Condition="'$(UsePackageReference_Acme_Core)' != 'true'
+                 And '$(_SwitchRef_SolutionProjects)' != ''
+                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</UsePackageReference_Acme_Core>
 
     <!-- Acme.Data -->
-    <_UsePackage_AcmeData Condition="'$(UsePackageReference_Acme_Data)' == 'true'">true</_UsePackage_AcmeData>
-    <_UsePackage_AcmeData Condition="'$(_UsePackage_AcmeData)' != 'true'
-                                   And '$(_SwitchRef_SolutionProjects)' != ''
-                                   And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Data.csproj|'))">true</_UsePackage_AcmeData>
+    <UsePackageReference_Acme_Data
+        Condition="'$(UsePackageReference_Acme_Data)' != 'true'
+                 And '$(_SwitchRef_SolutionProjects)' != ''
+                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Data.csproj|'))">true</UsePackageReference_Acme_Data>
 
   </PropertyGroup>
 

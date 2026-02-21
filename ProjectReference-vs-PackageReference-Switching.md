@@ -178,39 +178,42 @@ UsePackageReference_MyProj_LibB=true
 
 ### `Directory.Build.props` (repo root)
 
-Import `SwitchableReferences.props` (which reads the `.slnx` and exposes `_SwitchRef_SolutionProjects` — a string where each project filename is wrapped in `|` delimiters), then derive flags:
+Import `SwitchableReferences.props` (which reads the `.slnx` and exposes `_SwitchRef_SolutionProjects` — a string where each project filename is wrapped in `|` delimiters), then declare one property per dependency:
 
 ```xml
 <!-- Import shared infrastructure -->
 <Import Project="$(MSBuildThisFileDirectory)build\SwitchableReferences.props" />
 
-<!-- Derive all flags centrally -->
+<!-- Auto-detect: set to 'true' if project is absent from the .slnx.
+     If already set (NCrunch / env var / CLI), the existing value wins. -->
 <PropertyGroup>
   <!-- LibA -->
-  <_UsePackage_LibA Condition="'$(UsePackageReference_MyProj_LibA)' == 'true'">true</_UsePackage_LibA>
-  <_UsePackage_LibA Condition="'$(_UsePackage_LibA)' != 'true'
-                             And '$(_SwitchRef_SolutionProjects)' != ''
-                             And !$(_SwitchRef_SolutionProjects.Contains('|LibA.csproj|'))">true</_UsePackage_LibA>
+  <UsePackageReference_MyProj_LibA
+      Condition="'$(UsePackageReference_MyProj_LibA)' != 'true'
+               And '$(_SwitchRef_SolutionProjects)' != ''
+               And !$(_SwitchRef_SolutionProjects.Contains('|LibA.csproj|'))">true</UsePackageReference_MyProj_LibA>
 
   <!-- LibB -->
-  <_UsePackage_LibB Condition="'$(UsePackageReference_MyProj_LibB)' == 'true'">true</_UsePackage_LibB>
-  <_UsePackage_LibB Condition="'$(_UsePackage_LibB)' != 'true'
-                             And '$(_SwitchRef_SolutionProjects)' != ''
-                             And !$(_SwitchRef_SolutionProjects.Contains('|LibB.csproj|'))">true</_UsePackage_LibB>
+  <UsePackageReference_MyProj_LibB
+      Condition="'$(UsePackageReference_MyProj_LibB)' != 'true'
+               And '$(_SwitchRef_SolutionProjects)' != ''
+               And !$(_SwitchRef_SolutionProjects.Contains('|LibB.csproj|'))">true</UsePackageReference_MyProj_LibB>
 </PropertyGroup>
 ```
 
 The `|` delimiters ensure exact filename matching — `Company.LibA.csproj` won't false-match against `|LibA.csproj|`.
+
+The same property name (`UsePackageReference_MyProj_LibA`) is used everywhere: `Directory.Build.props` auto-detection, `.csproj` conditions, NCrunch `CustomBuildProperties`, and env var / CLI overrides.
 
 ### In each `.csproj` that has a switchable dependency
 
 Keep the actual reference items in the project file (required for NCrunch compatibility):
 
 ```xml
-<ItemGroup Condition="'$(_UsePackage_LibA)' == 'true'">
+<ItemGroup Condition="'$(UsePackageReference_MyProj_LibA)' == 'true'">
   <PackageReference Include="MyProj.LibA" Version="1.2.3" />
 </ItemGroup>
-<ItemGroup Condition="'$(_UsePackage_LibA)' != 'true'">
+<ItemGroup Condition="'$(UsePackageReference_MyProj_LibA)' != 'true'">
   <ProjectReference Include="..\LibA\LibA.csproj" />
 </ItemGroup>
 ```
@@ -259,13 +262,13 @@ For the full solution, just launch the IDE normally — no env vars, no script n
 
 ## How Each Scenario Flows
 
-| Scenario | `$(NCrunch)` | `$(_SwitchRef_SolutionProjects)` | `_UsePackage_LibA` | Result |
+| Scenario | `$(NCrunch)` | `$(_SwitchRef_SolutionProjects)` | `UsePackageReference_MyProj_LibA` | Result |
 |---|---|---|---|---|
-| VS/Rider, full solution (LibA included) | unset | set, contains `|LibA.csproj|` | false | **ProjectReference** |
-| VS/Rider, consumer-only (LibA absent) | unset | set, no `|LibA.csproj|` | true | **PackageReference** |
-| NCrunch, full solution workspace | `1` | skipped | unset → false | **ProjectReference** |
-| NCrunch, consumer-only workspace | `1` | skipped | true (from workspace) | **PackageReference** |
-| `dotnet build` (no solution context) | unset | empty | false | **ProjectReference** |
+| VS/Rider, full solution (LibA included) | unset | set, contains `|LibA.csproj|` | empty → false | **ProjectReference** |
+| VS/Rider, consumer-only (LibA absent) | unset | set, no `|LibA.csproj|` | `true` | **PackageReference** |
+| NCrunch, full solution workspace | `1` | skipped | empty → false | **ProjectReference** |
+| NCrunch, consumer-only workspace | `1` | skipped | `true` (from `.v3.ncrunchsolution`) | **PackageReference** |
+| `dotnet build` (no solution context) | unset | empty | empty → false | **ProjectReference** |
 
 ---
 
@@ -281,11 +284,11 @@ The `|` delimiters around each extracted filename in `_SwitchRef_SolutionProject
 `dotnet build` without a solution context leaves `$(SolutionPath)` empty, which falls through to ProjectReference (the safe default). This may fail if the sibling repo isn't checked out alongside. Adding an `Exists()` guard on the ProjectReference path handles this:
 
 ```xml
-<ItemGroup Condition="'$(_UsePackage_LibA)' != 'true'
+<ItemGroup Condition="'$(UsePackageReference_MyProj_LibA)' != 'true'
                   And Exists('..\LibA\LibA.csproj')">
   <ProjectReference Include="..\LibA\LibA.csproj" />
 </ItemGroup>
-<ItemGroup Condition="'$(_UsePackage_LibA)' == 'true'
+<ItemGroup Condition="'$(UsePackageReference_MyProj_LibA)' == 'true'
                    Or !Exists('..\LibA\LibA.csproj')">
   <PackageReference Include="MyProj.LibA" Version="1.2.3" />
 </ItemGroup>

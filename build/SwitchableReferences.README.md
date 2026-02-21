@@ -41,22 +41,24 @@ In your `Directory.Build.props` (create one at the repo root if you don't have o
   <Import Project="$(MSBuildThisFileDirectory)build\SwitchableReferences.props" />
 
   <!-- Declare switchable dependencies.
-       Each dependency needs two lines — copy this block and fill in:
-         - The override property name: UsePackageReference_{PackageName with dots as underscores}
+       Each dependency needs one property — copy this block and fill in:
+         - The property name: UsePackageReference_{PackageName with dots as underscores}
          - The .csproj filename to match (wrapped in | delimiters)
+       The same property is used in .csproj conditions, NCrunch
+       CustomBuildProperties, and env var / CLI overrides.
   -->
   <PropertyGroup>
     <!-- Acme.Utilities -->
-    <_UsePackage_AcmeUtilities Condition="'$(UsePackageReference_Acme_Utilities)' == 'true'">true</_UsePackage_AcmeUtilities>
-    <_UsePackage_AcmeUtilities Condition="'$(_UsePackage_AcmeUtilities)' != 'true'
-                                        And '$(_SwitchRef_SolutionProjects)' != ''
-                                        And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</_UsePackage_AcmeUtilities>
+    <UsePackageReference_Acme_Utilities
+        Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'
+                 And '$(_SwitchRef_SolutionProjects)' != ''
+                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Utilities.csproj|'))">true</UsePackageReference_Acme_Utilities>
 
     <!-- Acme.Core -->
-    <_UsePackage_AcmeCore Condition="'$(UsePackageReference_Acme_Core)' == 'true'">true</_UsePackage_AcmeCore>
-    <_UsePackage_AcmeCore Condition="'$(_UsePackage_AcmeCore)' != 'true'
-                                   And '$(_SwitchRef_SolutionProjects)' != ''
-                                   And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</_UsePackage_AcmeCore>
+    <UsePackageReference_Acme_Core
+        Condition="'$(UsePackageReference_Acme_Core)' != 'true'
+                 And '$(_SwitchRef_SolutionProjects)' != ''
+                 And !$(_SwitchRef_SolutionProjects.Contains('|Acme.Core.csproj|'))">true</UsePackageReference_Acme_Core>
   </PropertyGroup>
 
 </Project>
@@ -68,15 +70,15 @@ In every `.csproj` that references a switchable dependency, replace the plain `P
 
 ```xml
 <!-- Acme.Utilities — switchable reference -->
-<ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' == 'true'">
+<ItemGroup Condition="'$(UsePackageReference_Acme_Utilities)' == 'true'">
   <PackageReference Include="Acme.Utilities" Version="3.1.0" />
 </ItemGroup>
-<ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' != 'true'">
+<ItemGroup Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'">
   <ProjectReference Include="..\Acme.Utilities\Acme.Utilities.csproj" />
 </ItemGroup>
 ```
 
-That's it for the build side. The `!= 'true'` condition means: if the flag is empty, unset, or anything other than `true`, default to ProjectReference.
+That's it for the build side. The `!= 'true'` condition means: if the property is empty, unset, or anything other than `true`, default to ProjectReference.
 
 ### 4. Configure NCrunch solution files
 
@@ -128,29 +130,30 @@ When you need to make a new dependency switchable, you need three things:
 | Concept | Example |
 |---|---|
 | NuGet package name | `Acme.Utilities` |
-| Override property name | `UsePackageReference_Acme_Utilities` (dots → underscores) |
-| Internal flag property | `_UsePackage_AcmeUtilities` (your choice, just be consistent) |
+| Property name | `UsePackageReference_Acme_Utilities` (dots → underscores) |
 | `.csproj` filename to detect | `Acme.Utilities.csproj` (as it appears in the `.slnx` file) |
 
 Dots are invalid in MSBuild property names (they map to XML element names). Always use underscores.
 
+The same property name is used everywhere: `Directory.Build.props` auto-detection,
+`.csproj` conditions, NCrunch `CustomBuildProperties`, and env var / CLI overrides.
+
 ### Add to `Directory.Build.props`
 
-Copy this block and replace the four placeholders:
+Copy this block and replace the three placeholders:
 
 ```xml
     <!-- {DESCRIPTION} -->
-    <{FLAG} Condition="'$({OVERRIDE_PROPERTY})' == 'true'">true</{FLAG}>
-    <{FLAG} Condition="'$({FLAG})' != 'true'
-                      And '$(_SwitchRef_SolutionProjects)' != ''
-                      And !$(_SwitchRef_SolutionProjects.Contains('|{CSPROJ_FILENAME}|'))">true</{FLAG}>
+    <{PROPERTY}
+        Condition="'$({PROPERTY})' != 'true'
+                 And '$(_SwitchRef_SolutionProjects)' != ''
+                 And !$(_SwitchRef_SolutionProjects.Contains('|{CSPROJ_FILENAME}|'))">true</{PROPERTY}>
 ```
 
 | Placeholder | What to fill in | Example |
 |---|---|---|
 | `{DESCRIPTION}` | Human-readable comment | `Acme.Utilities` |
-| `{FLAG}` | Internal flag property name | `_UsePackage_AcmeUtilities` |
-| `{OVERRIDE_PROPERTY}` | Override property name | `UsePackageReference_Acme_Utilities` |
+| `{PROPERTY}` | Property name | `UsePackageReference_Acme_Utilities` |
 | `{CSPROJ_FILENAME}` | `.csproj` filename as in the `.slnx` | `Acme.Utilities.csproj` |
 
 ### Add to each consuming `.csproj`
@@ -159,10 +162,10 @@ Copy this block and replace the four placeholders:
 
 ```xml
 <!-- {DESCRIPTION} — switchable reference -->
-<ItemGroup Condition="'$({FLAG})' == 'true'">
+<ItemGroup Condition="'$({PROPERTY})' == 'true'">
   <PackageReference Include="{PACKAGE_NAME}" Version="{VERSION}" />
 </ItemGroup>
-<ItemGroup Condition="'$({FLAG})' != 'true'">
+<ItemGroup Condition="'$({PROPERTY})' != 'true'">
   <ProjectReference Include="{PROJECT_PATH}" />
 </ItemGroup>
 ```
@@ -170,7 +173,7 @@ Copy this block and replace the four placeholders:
 | Placeholder | What to fill in | Example |
 |---|---|---|
 | `{DESCRIPTION}` | Human-readable comment | `Acme.Utilities` |
-| `{FLAG}` | Internal flag property name (same as above) | `_UsePackage_AcmeUtilities` |
+| `{PROPERTY}` | Property name (same as above) | `UsePackageReference_Acme_Utilities` |
 | `{PACKAGE_NAME}` | NuGet package ID | `Acme.Utilities` |
 | `{VERSION}` | Package version | `3.1.0` |
 | `{PROJECT_PATH}` | Relative path to the `.csproj` | `..\Acme.Utilities\Acme.Utilities.csproj` |
@@ -208,11 +211,11 @@ Add an `Exists()` guard to handle this gracefully:
 
 ```xml
 <!-- Acme.Utilities — switchable reference with Exists() fallback -->
-<ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' != 'true'
+<ItemGroup Condition="'$(UsePackageReference_Acme_Utilities)' != 'true'
                   And Exists('..\Acme.Utilities\Acme.Utilities.csproj')">
   <ProjectReference Include="..\Acme.Utilities\Acme.Utilities.csproj" />
 </ItemGroup>
-<ItemGroup Condition="'$(_UsePackage_AcmeUtilities)' == 'true'
+<ItemGroup Condition="'$(UsePackageReference_Acme_Utilities)' == 'true'
                    Or !Exists('..\Acme.Utilities\Acme.Utilities.csproj')">
   <PackageReference Include="Acme.Utilities" Version="3.1.0" />
 </ItemGroup>
@@ -269,4 +272,4 @@ The `|` delimiters in `_SwitchRef_SolutionProjects` prevent most false positives
 - **Version drift**: When using ProjectReference, you build against whatever source is checked out — not the pinned package version. This is by design (you want the latest source), but be aware of it.
 - **`.slnx` only**: The shared infrastructure parses `.slnx` (XML solution format). Classic `.sln` files are not supported. .NET 10+ SDK defaults to `.slnx`; for older SDKs, migrate with `dotnet sln migrate`.
 - **`.csproj` filename uniqueness**: The `|` delimiters ensure exact filename matching, so `Company.Acme.Core.csproj` won't false-match against `|Acme.Core.csproj|`. However, if two genuinely different projects share the same `.csproj` filename, rename one.
-- **`$(SolutionPath)` in NCrunch**: Unreliable in NCrunch's isolated workspace — this is why NCrunch uses explicit overrides instead of auto-detection. The two paths never interfere with each other.
+- **NCrunch requires explicit flags**: NCrunch's `.csproj` parser builds a dependency graph *before* MSBuild runs, so it cannot evaluate property functions like `File.ReadAllText` or `Regex.Replace`. The `UsePackageReference_*` flags must be set explicitly in `.v3.ncrunchsolution` `CustomBuildProperties` for consumer-only solutions. These same flags are auto-detected for VS/Rider/CLI builds.

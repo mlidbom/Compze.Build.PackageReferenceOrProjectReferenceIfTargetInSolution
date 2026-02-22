@@ -45,7 +45,7 @@ class FlexRefWorkspace
          throw new ConfigurationAlreadyExistsException(RootDirectory);
 
       ConfigurationFile.CreateDefault();
-      FlexRefPropsFileWriter.Write(this);
+      FlexRefPropsFile.Write(this);
    }
 
    public void Sync()
@@ -53,7 +53,7 @@ class FlexRefWorkspace
       ScanProjects();
       LoadConfigurationAndResolve();
 
-      FlexRefPropsFileWriter.Write(this);
+      FlexRefPropsFile.Write(this);
       DirectoryBuildPropsFile.UpdateOrCreate();
       new CsprojUpdater(this).UpdateAll();
 

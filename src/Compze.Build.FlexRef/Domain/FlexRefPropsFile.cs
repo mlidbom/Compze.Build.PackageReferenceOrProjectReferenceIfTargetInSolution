@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace Compze.Build.FlexRef.Domain;
 
-static class FlexRefPropsFileWriter
+static class FlexRefPropsFile
 {
     static FileInfo GetPropsFile(FlexRefWorkspace workspace) =>
         new(Path.Combine(workspace.RootDirectory.FullName, DomainConstants.BuildDirectoryName, DomainConstants.PropsFileName));

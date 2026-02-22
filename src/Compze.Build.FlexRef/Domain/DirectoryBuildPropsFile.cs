@@ -67,7 +67,7 @@ class DirectoryBuildPropsFile
 
     void AddFlexRefImport()
     {
-        var importPath = FlexRefPropsFileWriter.GetMsBuildImportProjectValue();
+        var importPath = FlexRefPropsFile.GetMsBuildImportProjectValue();
         _rootElement.Add(
             new XComment(" Import FlexRef infrastructure (reads solution content) "),
             new XElement("Import", new XAttribute("Project", importPath)));

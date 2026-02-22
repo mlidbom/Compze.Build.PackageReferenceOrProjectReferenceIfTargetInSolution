@@ -55,7 +55,7 @@ class FlexRefWorkspace
 
       FlexRefPropsFile.Write(this);
       DirectoryBuildPropsFile.UpdateOrCreate();
-      new CSProjUpdater(this).UpdateAll();
+      CSProj.UpdateAll(this);
 
       foreach(var solution in SlnxSolution.FindAndParseAllSolutions(this))
          solution.UpdateNCrunchFile();

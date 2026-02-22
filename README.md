@@ -81,7 +81,7 @@ Or list packages explicitly instead:
 
 ### Confirmed to work with:
 
-- Visual Studio 2022+
+- Visual Studio 2026
 - JetBrains Rider
 - VS Code (C# Dev Kit and/or ReSharper)
 - `dotnet build` / `dotnet restore` CLI

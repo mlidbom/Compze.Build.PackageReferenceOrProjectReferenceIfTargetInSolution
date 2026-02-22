@@ -9,6 +9,7 @@ class FlexRefWorkspace
    internal IReadOnlyList<FlexReferencedProject> FlexReferencedProjects { get; set; } = [];
 
    internal FlexRefConfigurationFile ConfigurationFile { get; }
+   internal DirectoryBuildPropsFile DirectoryBuildPropsFile { get; }
 
    public FlexRefWorkspace(DirectoryInfo rootDirectory)
    {
@@ -17,6 +18,7 @@ class FlexRefWorkspace
 
       RootDirectory = rootDirectory;
       ConfigurationFile = new FlexRefConfigurationFile(this);
+      DirectoryBuildPropsFile = new DirectoryBuildPropsFile(this);
    }
 
    void ScanProjects()
@@ -52,7 +54,7 @@ class FlexRefWorkspace
       LoadConfigurationAndResolve();
 
       FlexRefPropsFileWriter.Write(this);
-      DirectoryBuildPropsFileUpdater.UpdateOrCreate(this);
+      DirectoryBuildPropsFile.UpdateOrCreate();
       new CsprojUpdater(this).UpdateAll();
 
       foreach(var solution in SlnxSolution.FindAndParseAllSolutions(this))

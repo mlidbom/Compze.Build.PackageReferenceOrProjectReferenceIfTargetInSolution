@@ -3,18 +3,21 @@ using Compze.Build.FlexRef.SystemCE.XmlCE.LinqCE;
 
 namespace Compze.Build.FlexRef.Domain;
 
-class DirectoryBuildPropsFileUpdater
+class DirectoryBuildPropsFile
 {
     readonly FileInfo _file;
-    readonly XDocument _document;
-    readonly XElement _rootElement;
     readonly FlexRefWorkspace _workspace;
+    XDocument _document = null!;
+    XElement _rootElement = null!;
 
-    DirectoryBuildPropsFileUpdater(FlexRefWorkspace workspace)
+    internal DirectoryBuildPropsFile(FlexRefWorkspace workspace)
     {
         _workspace = workspace;
         _file = new FileInfo(Path.Combine(workspace.RootDirectory.FullName, DomainConstants.DirectoryBuildPropsFileName));
+    }
 
+    public void UpdateOrCreate()
+    {
         if(_file.Exists)
         {
             _document = XDocument.Load(_file.FullName);
@@ -25,16 +28,7 @@ class DirectoryBuildPropsFileUpdater
             _rootElement = new XElement("Project");
             _document = new XDocument(_rootElement);
         }
-    }
 
-    public static void UpdateOrCreate(FlexRefWorkspace workspace)
-    {
-        var updater = new DirectoryBuildPropsFileUpdater(workspace);
-        updater.Update();
-    }
-
-    void Update()
-    {
         RemoveExistingFlexRefImport();
         RemoveExistingUsePackageReferenceProperties();
 

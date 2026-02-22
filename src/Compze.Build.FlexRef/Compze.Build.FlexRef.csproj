@@ -30,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Compze.Build.FlexRef.Specifications" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="FlexRef.props" LogicalName="FlexRef.props" />
   </ItemGroup>
 

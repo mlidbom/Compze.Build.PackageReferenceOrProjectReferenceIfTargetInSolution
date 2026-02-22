@@ -11,5 +11,6 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Compze.Build.FlexRef/Compze.Build.FlexRef.csproj" />
+    <Project Path="src/Compze.Build.FlexRef.Specifications/Compze.Build.FlexRef.Specifications.csproj" />
   </Folder>
 </Solution>

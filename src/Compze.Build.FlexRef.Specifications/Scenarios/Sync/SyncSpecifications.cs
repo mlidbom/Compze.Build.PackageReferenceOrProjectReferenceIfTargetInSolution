@@ -16,6 +16,7 @@ public class SyncSpecifications
    {
       ScenarioRunner.RunAndVerify(
          new DirectoryInfo(Path.Combine(ScenariosDirectory.FullName, scenarioName)),
-         workspace => workspace.Sync());
+         workspace => workspace.Sync(),
+         verifyIdempotency: true);
    }
 }

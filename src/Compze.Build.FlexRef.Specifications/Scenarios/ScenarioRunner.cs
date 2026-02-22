@@ -16,7 +16,7 @@ static class ScenarioRunner
       return theoryData;
    }
 
-   public static void RunAndVerify(DirectoryInfo scenarioDirectory, Action<Domain.FlexRefWorkspace> command)
+   public static void RunAndVerify(DirectoryInfo scenarioDirectory, Action<Domain.FlexRefWorkspace> command, bool verifyIdempotency = false)
    {
       var startState = new DirectoryInfo(Path.Combine(scenarioDirectory.FullName, "start-state"));
       var expectedState = new DirectoryInfo(Path.Combine(scenarioDirectory.FullName, "expected-state"));
@@ -32,6 +32,15 @@ static class ScenarioRunner
 
       CompareDirectoryContents(expectedState, tempWorkFolder);
       VerifyMSBuildReferenceResolution(tempWorkFolder);
+
+      if(verifyIdempotency)
+      {
+         var workspaceForSecondRun = new Domain.FlexRefWorkspace(tempWorkFolder);
+         command(workspaceForSecondRun);
+
+         CompareDirectoryContents(expectedState, tempWorkFolder);
+         VerifyMSBuildReferenceResolution(tempWorkFolder);
+      }
    }
 
    static void VerifyMSBuildReferenceResolution(DirectoryInfo workspaceDirectory)

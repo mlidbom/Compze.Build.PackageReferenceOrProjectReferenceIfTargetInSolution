@@ -45,6 +45,22 @@ class FlexRefWorkspace
       new FlexRefConfigurationFile(RootDirectory).CreateDefault(AllProjects);
    }
 
+   public static void Init(DirectoryInfo rootDirectory)
+   {
+      var workspace = Scan(rootDirectory);
+      workspace.CreateDefaultConfiguration();
+      workspace.WriteFlexRefProps();
+   }
+
+   public static void Sync(DirectoryInfo rootDirectory)
+   {
+      var workspace = ScanAndResolve(rootDirectory);
+      workspace.WriteFlexRefProps();
+      workspace.UpdateDirectoryBuildProps();
+      workspace.UpdateCsprojFiles();
+      workspace.UpdateNCrunchFiles();
+   }
+
    public void WriteFlexRefProps() =>
       FlexRefPropsFileWriter.WriteToDirectory(RootDirectory);
 

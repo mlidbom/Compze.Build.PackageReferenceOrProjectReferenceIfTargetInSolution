@@ -10,10 +10,7 @@ static class InitCommand
 
         try
         {
-            Console.WriteLine("Scanning for packable projects...");
-            var workspace = FlexRefWorkspace.Scan(rootDirectory);
-            workspace.CreateDefaultConfiguration();
-            workspace.WriteFlexRefProps();
+            FlexRefWorkspace.Init(rootDirectory);
         }
         catch(ConfigurationAlreadyExistsException)
         {

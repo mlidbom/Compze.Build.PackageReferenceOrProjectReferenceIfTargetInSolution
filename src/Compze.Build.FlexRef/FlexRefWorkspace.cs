@@ -6,7 +6,7 @@ class FlexRefWorkspace
    public IReadOnlyList<ManagedProject> AllProjects { get; }
    public IReadOnlyList<FlexReferencedProject> FlexReferencedProjects { get; }
 
-   internal FlexRefWorkspace(DirectoryInfo rootDirectory, List<ManagedProject> allProjects, List<FlexReferencedProject> flexReferencedProjects)
+   FlexRefWorkspace(DirectoryInfo rootDirectory, List<ManagedProject> allProjects, List<FlexReferencedProject> flexReferencedProjects)
    {
       RootDirectory = rootDirectory;
       AllProjects = allProjects;

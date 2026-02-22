@@ -14,16 +14,17 @@ partial class SlnxSolution
         }
     }
 
-    SlnxSolution(FileInfo slnxFile, List<string> projectFileNames)
+    SlnxSolution(FileInfo slnxFile, List<string> projectFileNames, FlexRefWorkspace workspace)
     {
         SlnxFile = slnxFile;
         ProjectFileNames = projectFileNames;
+        Workspace = workspace;
     }
 
-    public static List<SlnxSolution> FindAndParseAllSolutions(DirectoryInfo rootDirectory) =>
-        Scanner.FindAndParseAll(rootDirectory);
+    public static List<SlnxSolution> FindAndParseAllSolutions(FlexRefWorkspace workspace) =>
+        Scanner.FindAndParseAll(workspace);
 
-    internal FlexRefWorkspace Workspace { get; set; } = null!;
+    internal FlexRefWorkspace Workspace { get; }
 
     public List<FlexReferencedProject> AbsentFlexReferencedProjects =>
         Workspace.FlexReferencedProjects

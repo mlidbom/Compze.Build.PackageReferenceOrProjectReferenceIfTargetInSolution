@@ -6,11 +6,11 @@ partial class ManagedProject
 {
     static class Scanner
     {
-        internal static List<ManagedProject> ScanDirectory(DirectoryInfo rootDirectory)
+        internal static List<ManagedProject> ScanDirectory(FlexRefWorkspace workspace)
         {
             using var projectCollection = new ProjectCollection();
-            return FindCsprojFilesRecursively(rootDirectory)
-                .Select(csprojFile => ParseCsproj(csprojFile, projectCollection))
+            return FindCsprojFilesRecursively(workspace.RootDirectory)
+                .Select(csprojFile => ParseCsproj(csprojFile, projectCollection, workspace))
                 .OfType<ManagedProject>()
                 .ToList();
         }
@@ -30,11 +30,11 @@ partial class ManagedProject
             }
         }
 
-        static ManagedProject? ParseCsproj(FileInfo csprojFile, ProjectCollection projectCollection)
+        static ManagedProject? ParseCsproj(FileInfo csprojFile, ProjectCollection projectCollection, FlexRefWorkspace workspace)
         {
             try
             {
-                return new ManagedProject(csprojFile, projectCollection);
+                return new ManagedProject(csprojFile, projectCollection, workspace);
             }
             catch(Exception exception)
             {

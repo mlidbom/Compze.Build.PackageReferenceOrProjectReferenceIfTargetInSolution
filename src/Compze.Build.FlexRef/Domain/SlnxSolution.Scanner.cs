@@ -6,9 +6,9 @@ partial class SlnxSolution
 {
     static class Scanner
     {
-        public static List<SlnxSolution> FindAndParseAll(DirectoryInfo rootDirectory) =>
-            FindSlnxFilesRecursively(rootDirectory)
-               .Select(ParseSlnx)
+        public static List<SlnxSolution> FindAndParseAll(FlexRefWorkspace workspace) =>
+            FindSlnxFilesRecursively(workspace.RootDirectory)
+               .Select(slnxFile => ParseSlnx(slnxFile, workspace))
                .OfType<SlnxSolution>()
                .ToList();
 
@@ -27,7 +27,7 @@ partial class SlnxSolution
             }
         }
 
-        static SlnxSolution? ParseSlnx(FileInfo slnxFile)
+        static SlnxSolution? ParseSlnx(FileInfo slnxFile, FlexRefWorkspace workspace)
         {
             try
             {
@@ -38,7 +38,7 @@ partial class SlnxSolution
                                                .Select(path => Path.GetFileName(path!))
                                                .ToList();
 
-                return new SlnxSolution(slnxFile: slnxFile, projectFileNames: projectFileNames);
+                return new SlnxSolution(slnxFile: slnxFile, projectFileNames: projectFileNames, workspace: workspace);
             }
             catch(Exception exception)
             {

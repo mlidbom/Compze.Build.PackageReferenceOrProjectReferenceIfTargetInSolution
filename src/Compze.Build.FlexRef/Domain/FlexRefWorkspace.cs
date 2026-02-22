@@ -20,11 +20,8 @@ class FlexRefWorkspace
 
    void ScanProjects()
    {
-      var allProjects = ManagedProject.ScanDirectory(RootDirectory);
+      var allProjects = ManagedProject.ScanDirectory(this);
       AllProjects = allProjects;
-
-      foreach(var project in allProjects)
-         project.Workspace = this;
    }
 
    void LoadConfigurationAndResolve()
@@ -58,10 +55,7 @@ class FlexRefWorkspace
       DirectoryBuildPropsFileUpdater.UpdateOrCreate(this);
       new CsprojUpdater(this).UpdateAll();
 
-      foreach(var solution in SlnxSolution.FindAndParseAllSolutions(RootDirectory))
-      {
-         solution.Workspace = this;
+      foreach(var solution in SlnxSolution.FindAndParseAllSolutions(this))
          solution.UpdateNCrunchFile();
-      }
    }
 }

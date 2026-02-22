@@ -16,8 +16,9 @@ partial class ManagedProject
     public List<ProjectReferenceEntry> ProjectReferences { get; }
     public List<PackageReferenceEntry> PackageReferences { get; }
 
-    ManagedProject(FileInfo csprojFile, ProjectCollection projectCollection)
+    ManagedProject(FileInfo csprojFile, ProjectCollection projectCollection, FlexRefWorkspace workspace)
     {
+        Workspace = workspace;
         CsprojFile = csprojFile;
 
         var msbuildProject = new Project(csprojFile.FullName, null, null, projectCollection);
@@ -44,13 +45,13 @@ partial class ManagedProject
             .ToList();
     }
 
-    internal static List<ManagedProject> ScanDirectory(DirectoryInfo rootDirectory) =>
-        Scanner.ScanDirectory(rootDirectory);
+    internal static List<ManagedProject> ScanDirectory(FlexRefWorkspace workspace) =>
+        Scanner.ScanDirectory(workspace);
 
     internal static List<FlexReferencedProject> ResolveFlexReferencedProjects(FlexRefConfigurationFile configuration, List<ManagedProject> allProjects) =>
         FlexReferenceResolver.Resolve(configuration, allProjects);
 
-    internal FlexRefWorkspace Workspace { get; set; } = null!;
+    internal FlexRefWorkspace Workspace { get; }
 
     public List<FlexReferencedProject> FlexReferencedProjects
     {

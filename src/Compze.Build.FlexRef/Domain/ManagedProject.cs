@@ -49,11 +49,18 @@ partial class ManagedProject
     internal static List<ManagedProject> ScanDirectory(FlexRefWorkspace workspace)
     {
         using var projectCollection = new ProjectCollection();
-        return workspace.RootDirectory
-            .EnumerateFiles(DomainConstants.CsprojSearchPattern, SearchOption.AllDirectories)
-            .Where(file => !DomainConstants.DirectoriesToSkip.Any(file.HasDirectoryInPath))
-            .Select(csprojFile => new ManagedProject(csprojFile, projectCollection, workspace))
-            .ToList();
+        try
+        {
+            return workspace.RootDirectory
+                .EnumerateFiles(DomainConstants.CsprojSearchPattern, SearchOption.AllDirectories)
+                .Where(file => !DomainConstants.DirectoriesToSkip.Any(file.HasDirectoryInPath))
+                .Select(csprojFile => new ManagedProject(csprojFile, projectCollection, workspace))
+                .ToList();
+        }
+        finally
+        {
+            projectCollection.UnloadAllProjects();//Todo: here because we have file locking issues and supposedly this can cause them. This is exploratory though.
+        }
     }
 
     internal static List<FlexReferencedProject> ResolveFlexReferencedProjects(FlexRefWorkspace workspace) =>

@@ -21,50 +21,64 @@ static class FlexReferenceResolutionAssertion
          var projectFileNamesInSolution = ParseSlnxProjectFileNames(slnxFile);
 
          using var projectCollection = new ProjectCollection();
-         var globalProperties = new Dictionary<string, string> { ["SolutionPath"] = slnxFile.FullName };
-
-         foreach(var csprojFile in csprojFiles)
+         try
          {
-            var msbuildProject = new Project(csprojFile.FullName, globalProperties, null, projectCollection);
+             var globalProperties = new Dictionary<string, string> { ["SolutionPath"] = slnxFile.FullName };
 
-            var projectReferences = msbuildProject.GetItems("ProjectReference")
-                                                  .Select(item => Path.GetFileName(item.EvaluatedInclude))
-                                                  .ToList();
+             foreach (var csprojFile in csprojFiles)
+             {
+                 var msbuildProject = new Project(csprojFile.FullName, globalProperties, null, projectCollection);
 
-            var packageReferences = msbuildProject.GetItems("PackageReference")
-                                                  .Select(item => item.EvaluatedInclude)
-                                                  .ToList();
+                 var projectReferences = msbuildProject.GetItems("ProjectReference")
+                     .Select(item => Path.GetFileName(item.EvaluatedInclude))
+                     .ToList();
 
-            var flexReferencedPackageIds = FindFlexReferencedPackageIds(msbuildProject);
+                 var packageReferences = msbuildProject.GetItems("PackageReference")
+                     .Select(item => item.EvaluatedInclude)
+                     .ToList();
 
-            foreach(var packageId in flexReferencedPackageIds)
-            {
-               var expectedCsprojFileName = packageId + DomainConstants.CsprojFileExtension;
-               var projectIsInSolution = projectFileNamesInSolution.Contains(expectedCsprojFileName, StringComparer.OrdinalIgnoreCase);
+                 var flexReferencedPackageIds = FindFlexReferencedPackageIds(msbuildProject);
 
-               var hasProjectReference = projectReferences.Any(fileName => fileName.Equals(expectedCsprojFileName, StringComparison.OrdinalIgnoreCase));
-               var hasPackageReference = packageReferences.Any(name => name.Equals(packageId, StringComparison.OrdinalIgnoreCase));
+                 foreach (var packageId in flexReferencedPackageIds)
+                 {
+                     var expectedCsprojFileName = packageId + DomainConstants.CsprojFileExtension;
+                     var projectIsInSolution =
+                         projectFileNamesInSolution.Contains(expectedCsprojFileName, StringComparer.OrdinalIgnoreCase);
 
-               if(!hasProjectReference && !hasPackageReference)
-                  continue; // This project doesn't consume this package (e.g. it IS the package itself)
+                     var hasProjectReference = projectReferences.Any(fileName =>
+                         fileName.Equals(expectedCsprojFileName, StringComparison.OrdinalIgnoreCase));
+                     var hasPackageReference = packageReferences.Any(name =>
+                         name.Equals(packageId, StringComparison.OrdinalIgnoreCase));
 
-               var context = $"[{slnxFile.Name} → {csprojFile.Name} → {packageId}]";
+                     if (!hasProjectReference && !hasPackageReference)
+                         continue; // This project doesn't consume this package (e.g. it IS the package itself)
 
-               if(projectIsInSolution)
-               {
-                  if(!hasProjectReference)
-                     throw new AssertionFailedException($"{context} Expected ProjectReference to {expectedCsprojFileName} (project is in solution) but found none.");
-                  if(hasPackageReference)
-                     throw new AssertionFailedException($"{context} Found unexpected PackageReference to {packageId} (project is in solution — should be ProjectReference).");
-               }
-               else
-               {
-                  if(!hasPackageReference)
-                     throw new AssertionFailedException($"{context} Expected PackageReference to {packageId} (project is absent from solution) but found none.");
-                  if(hasProjectReference)
-                     throw new AssertionFailedException($"{context} Found unexpected ProjectReference to {expectedCsprojFileName} (project is absent from solution — should be PackageReference).");
-               }
-            }
+                     var context = $"[{slnxFile.Name} → {csprojFile.Name} → {packageId}]";
+
+                     if (projectIsInSolution)
+                     {
+                         if (!hasProjectReference)
+                             throw new AssertionFailedException(
+                                 $"{context} Expected ProjectReference to {expectedCsprojFileName} (project is in solution) but found none.");
+                         if (hasPackageReference)
+                             throw new AssertionFailedException(
+                                 $"{context} Found unexpected PackageReference to {packageId} (project is in solution — should be ProjectReference).");
+                     }
+                     else
+                     {
+                         if (!hasPackageReference)
+                             throw new AssertionFailedException(
+                                 $"{context} Expected PackageReference to {packageId} (project is absent from solution) but found none.");
+                         if (hasProjectReference)
+                             throw new AssertionFailedException(
+                                 $"{context} Found unexpected ProjectReference to {expectedCsprojFileName} (project is absent from solution — should be PackageReference).");
+                     }
+                 }
+             }
+         }
+         finally
+         {
+             projectCollection.UnloadAllProjects();//Todo: here because we have file locking issues and supposedly this can cause them. This is exploratory though.
          }
       }
    }

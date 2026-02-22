@@ -1,8 +1,9 @@
 using System.Xml.Linq;
+using Compze.Build.FlexRef.SystemCE.IOCE;
 
 namespace Compze.Build.FlexRef.Domain;
 
-partial class SlnxSolution
+class SlnxSolution
 {
     public FileInfo SlnxFile { get; }
     public List<string> ProjectFileNames { get; }
@@ -29,7 +30,12 @@ partial class SlnxSolution
                                    .ToList();
     }
 
-    public static List<SlnxSolution> FindAndParseAllSolutions(FlexRefWorkspace workspace) => Scanner.FindAndParseAll(workspace);
+    public static List<SlnxSolution> FindAndParseAllSolutions(FlexRefWorkspace workspace) =>
+        workspace.RootDirectory
+           .EnumerateFiles(DomainConstants.SlnxSearchPattern, SearchOption.AllDirectories)
+           .Where(file => !DomainConstants.DirectoriesToSkip.Any(file.HasDirectoryInPath))
+           .Select(slnxFile => new SlnxSolution(slnxFile, workspace))
+           .ToList();
 
     internal FlexRefWorkspace Workspace { get; }
 

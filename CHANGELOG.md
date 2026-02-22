@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
-## [0.5.0-alpha.1] - 2026-02-21
+## [0.5.0-alpha.1] - 2026-02-22
 
 ### Changed
 - Refactored into a dotnet tool that makes everything automatic

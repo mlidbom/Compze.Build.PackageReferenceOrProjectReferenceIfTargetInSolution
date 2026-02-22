@@ -16,12 +16,27 @@ class FlexRefWorkspace
          project.Workspace = this;
    }
 
-   public static FlexRefWorkspace ScanAndResolve(DirectoryInfo rootDirectory, FlexRefConfigurationFile configuration)
+   public static FlexRefWorkspace Scan(DirectoryInfo rootDirectory)
    {
       var allProjects = ManagedProject.ScanDirectory(rootDirectory);
-      var flexReferencedProjects = ManagedProject.ResolveFlexReferencedProjects(configuration, allProjects);
+      return new FlexRefWorkspace(rootDirectory, allProjects, []);
+   }
+
+   public static FlexRefWorkspace ScanAndResolve(DirectoryInfo rootDirectory)
+   {
+      var configFile = new FlexRefConfigurationFile(rootDirectory);
+      configFile.Load();
+
+      var allProjects = ManagedProject.ScanDirectory(rootDirectory);
+      var flexReferencedProjects = ManagedProject.ResolveFlexReferencedProjects(configFile, allProjects);
       return new FlexRefWorkspace(rootDirectory, allProjects, flexReferencedProjects);
    }
+
+   public void CreateDefaultConfiguration() =>
+      new FlexRefConfigurationFile(RootDirectory).CreateDefault(AllProjects);
+
+   public void WriteFlexRefProps() =>
+      FlexRefPropsFileWriter.WriteToDirectory(RootDirectory);
 
    public void UpdateDirectoryBuildProps() => DirectoryBuildPropsFileUpdater.UpdateOrCreate(this);
 

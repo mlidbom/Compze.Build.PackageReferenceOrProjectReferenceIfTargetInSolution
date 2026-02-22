@@ -6,20 +6,17 @@ static class InitCommand
     {
         Console.WriteLine($"Initializing FlexRef in: {rootDirectory.FullName}");
 
-        var configFile = new FlexRefConfigurationFile(rootDirectory);
-
-        if (configFile.Exists())
+        if(FlexRefConfigurationFile.ExistsIn(rootDirectory))
         {
-            Console.Error.WriteLine($"Error: {configFile.ConfigFile.FullName} already exists.");
+            Console.Error.WriteLine($"Error: FlexRef.config.xml already exists in {rootDirectory.FullName}.");
             Console.Error.WriteLine("Delete it first if you want to re-initialize.");
             return 1;
         }
 
         Console.WriteLine("Scanning for packable projects...");
-        var allProjects = ManagedProject.ScanDirectory(rootDirectory);
-        configFile.CreateDefault(allProjects);
-
-        FlexRefPropsFileWriter.WriteToDirectory(rootDirectory);
+        var workspace = FlexRefWorkspace.Scan(rootDirectory);
+        workspace.CreateDefaultConfiguration();
+        workspace.WriteFlexRefProps();
 
         Console.WriteLine();
         Console.WriteLine("Initialization complete.");

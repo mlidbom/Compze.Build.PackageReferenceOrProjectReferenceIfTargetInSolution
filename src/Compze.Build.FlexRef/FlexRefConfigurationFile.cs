@@ -31,6 +31,9 @@ class FlexRefConfigurationFile
         ConfigFile = new FileInfo(Path.Combine(rootDirectory.FullName, ConfigFileName));
     }
 
+    public static bool ExistsIn(DirectoryInfo rootDirectory) =>
+        File.Exists(Path.Combine(rootDirectory.FullName, ConfigFileName));
+
     public bool Exists() => ConfigFile.Exists;
 
     public void Load()
@@ -58,7 +61,7 @@ class FlexRefConfigurationFile
                               .ToList();
     }
 
-    public void CreateDefault(List<ManagedProject> allProjects)
+    public void CreateDefault(IReadOnlyList<ManagedProject> allProjects)
     {
         var packableProjects = allProjects
             .Where(project => project is { IsPackable: true, PackageId: not null })

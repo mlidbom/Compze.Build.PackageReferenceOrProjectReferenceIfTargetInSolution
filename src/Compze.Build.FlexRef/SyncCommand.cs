@@ -6,26 +6,22 @@ static class SyncCommand
     {
         Console.WriteLine($"Syncing FlexRef in: {rootDirectory.FullName}");
 
-        var configFile = new FlexRefConfigurationFile(rootDirectory);
-
-        if(!configFile.Exists())
+        if(!FlexRefConfigurationFile.ExistsIn(rootDirectory))
         {
-            Console.Error.WriteLine($"Error: {configFile.ConfigFile.FullName} not found.");
+            Console.Error.WriteLine($"Error: FlexRef.config.xml not found in {rootDirectory.FullName}.");
             Console.Error.WriteLine("Run 'flexref init' first to create the configuration.");
             return 1;
         }
 
-        configFile.Load();
-
         Console.WriteLine("Scanning projects...");
-        var workspace = FlexRefWorkspace.ScanAndResolve(rootDirectory, configFile);
+        var workspace = FlexRefWorkspace.ScanAndResolve(rootDirectory);
         Console.WriteLine($"  Resolved {workspace.FlexReferencedProjects.Count} flex-referenced project(s):");
         foreach(var flexReferencedProject in workspace.FlexReferencedProjects)
             Console.WriteLine($"    - {flexReferencedProject.PackageId} ({flexReferencedProject.CsprojFile.Name})");
 
         Console.WriteLine();
         Console.WriteLine("Writing FlexRef.props...");
-        FlexRefPropsFileWriter.WriteToDirectory(rootDirectory);
+        workspace.WriteFlexRefProps();
 
         Console.WriteLine();
         Console.WriteLine("Updating Directory.Build.props...");

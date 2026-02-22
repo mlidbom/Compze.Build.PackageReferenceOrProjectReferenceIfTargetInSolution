@@ -25,16 +25,4 @@ This is clearly a conscious design choice (you don't want to manage version pinn
 
 ### 10. No `--dry-run` or diff mode
 
-The tool modifies files in place with no preview option. For a tool that rewrites `.csproj` and `Directory.Build.props` files, a `--dry-run` flag showing what would change would build user confidence. Not a bug, but a significant UX gap.
-
----
-
-## Robustness / Edge Cases
-
-## CI / Build Pipeline
-
-### 14. No test project for the CLI tool itself
-
-The only tests are the example Acme.* tests that exercise the *output* of the tool indirectly (do the generated csproj files build?). There are no unit tests for the tool's logic — parsing, resolving, updating. For a tool that generates MSBuild boilerplate, regression tests comparing expected vs actual XML output would catch bugs early.
-
----
+The tool modifies files in place with no preview option. For a tool that rewrites `.csproj` and `Directory.Build.props` files, a `--dry-run` flag showing what would change would build user confidence. Not a bug, but a significant UX gap.~

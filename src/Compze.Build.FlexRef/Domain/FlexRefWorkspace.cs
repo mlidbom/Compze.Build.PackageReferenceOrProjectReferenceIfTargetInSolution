@@ -3,70 +3,53 @@ namespace Compze.Build.FlexRef.Domain;
 class FlexRefWorkspace
 {
    public DirectoryInfo RootDirectory { get; }
-   public IReadOnlyList<ManagedProject> AllProjects { get; }
-   public IReadOnlyList<FlexReferencedProject> FlexReferencedProjects { get; }
+   internal IReadOnlyList<ManagedProject> AllProjects { get; set; } = [];
+   internal IReadOnlyList<FlexReferencedProject> FlexReferencedProjects { get; set; } = [];
 
-   FlexRefWorkspace(DirectoryInfo rootDirectory, List<ManagedProject> allProjects, List<FlexReferencedProject> flexReferencedProjects)
-   {
+   public FlexRefWorkspace(DirectoryInfo rootDirectory) =>
       RootDirectory = rootDirectory;
+
+   bool ConfigurationExists => FlexRefConfigurationFile.ExistsIn(RootDirectory);
+
+   void ScanProjects()
+   {
+      var allProjects = ManagedProject.ScanDirectory(RootDirectory);
       AllProjects = allProjects;
-      FlexReferencedProjects = flexReferencedProjects;
 
       foreach(var project in allProjects)
          project.Workspace = this;
    }
 
-   public bool ConfigurationExists => FlexRefConfigurationFile.ExistsIn(RootDirectory);
-
-   public static FlexRefWorkspace Scan(DirectoryInfo rootDirectory)
+   void LoadConfigurationAndResolve()
    {
-      var allProjects = ManagedProject.ScanDirectory(rootDirectory);
-      return new FlexRefWorkspace(rootDirectory, allProjects, []);
-   }
+      if(!ConfigurationExists)
+         throw new ConfigurationNotFoundException(RootDirectory);
 
-   public static FlexRefWorkspace ScanAndResolve(DirectoryInfo rootDirectory)
-   {
-      if(!FlexRefConfigurationFile.ExistsIn(rootDirectory))
-         throw new ConfigurationNotFoundException(rootDirectory);
-
-      var configFile = new FlexRefConfigurationFile(rootDirectory);
+      var configFile = new FlexRefConfigurationFile(RootDirectory);
       configFile.Load();
 
-      var allProjects = ManagedProject.ScanDirectory(rootDirectory);
-      var flexReferencedProjects = ManagedProject.ResolveFlexReferencedProjects(configFile, allProjects);
-      return new FlexRefWorkspace(rootDirectory, allProjects, flexReferencedProjects);
+      FlexReferencedProjects = ManagedProject.ResolveFlexReferencedProjects(configFile, AllProjects.ToList());
    }
 
-   public void CreateDefaultConfiguration()
+   public void Init()
    {
+      ScanProjects();
+
       if(ConfigurationExists)
          throw new ConfigurationAlreadyExistsException(RootDirectory);
 
       new FlexRefConfigurationFile(RootDirectory).CreateDefault(AllProjects);
-   }
-
-   public static void Init(DirectoryInfo rootDirectory)
-   {
-      var workspace = Scan(rootDirectory);
-      workspace.CreateDefaultConfiguration();
-      workspace.WriteFlexRefProps();
-   }
-
-   public static void Sync(DirectoryInfo rootDirectory)
-   {
-      var workspace = ScanAndResolve(rootDirectory);
-      workspace.WriteFlexRefProps();
-      workspace.UpdateDirectoryBuildProps();
-      workspace.UpdateCsprojFiles();
-      workspace.UpdateNCrunchFiles();
-   }
-
-   public void WriteFlexRefProps() =>
       FlexRefPropsFileWriter.WriteToDirectory(RootDirectory);
+   }
 
-   public void UpdateDirectoryBuildProps() => DirectoryBuildPropsFileUpdater.UpdateOrCreate(this);
+   public void Sync()
+   {
+      ScanProjects();
+      LoadConfigurationAndResolve();
 
-   public void UpdateCsprojFiles() => new CsprojUpdater(this).UpdateAll();
-
-   public void UpdateNCrunchFiles() => new NCrunchUpdater(this).UpdateAll();
+      FlexRefPropsFileWriter.WriteToDirectory(RootDirectory);
+      DirectoryBuildPropsFileUpdater.UpdateOrCreate(this);
+      new CsprojUpdater(this).UpdateAll();
+      new NCrunchUpdater(this).UpdateAll();
+   }
 }

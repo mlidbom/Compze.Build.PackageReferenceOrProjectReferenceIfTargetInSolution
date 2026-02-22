@@ -1,3 +1,4 @@
+using Compze.Build.FlexRef.Domain;
 using Microsoft.Build.Locator;
 
 namespace Compze.Build.FlexRef.CLI;
@@ -21,10 +22,12 @@ static class Program
             return 1;
         }
 
+        var workspace = new FlexRefWorkspace(rootDirectory);
+
         return command switch
         {
-            "init" => InitCommand.Execute(rootDirectory),
-            "sync" => SyncCommand.Execute(rootDirectory),
+            "init" => InitCommand.Execute(workspace),
+            "sync" => SyncCommand.Execute(workspace),
             _ => PrintUsageAndReturnError()
         };
     }

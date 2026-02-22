@@ -4,13 +4,13 @@ namespace Compze.Build.FlexRef.CLI;
 
 static class InitCommand
 {
-    public static int Execute(DirectoryInfo rootDirectory)
+    public static int Execute(FlexRefWorkspace workspace)
     {
-        Console.WriteLine($"Initializing FlexRef in: {rootDirectory.FullName}");
+        Console.WriteLine($"Initializing FlexRef in: {workspace.RootDirectory.FullName}");
 
         try
         {
-            FlexRefWorkspace.Init(rootDirectory);
+            workspace.Init();
         }
         catch(ConfigurationAlreadyExistsException)
         {

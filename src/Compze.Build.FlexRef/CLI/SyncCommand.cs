@@ -4,13 +4,13 @@ namespace Compze.Build.FlexRef.CLI;
 
 static class SyncCommand
 {
-    public static int Execute(DirectoryInfo rootDirectory)
+    public static int Execute(FlexRefWorkspace workspace)
     {
-        Console.WriteLine($"Syncing FlexRef in: {rootDirectory.FullName}");
+        Console.WriteLine($"Syncing FlexRef in: {workspace.RootDirectory.FullName}");
 
         try
         {
-            FlexRefWorkspace.Sync(rootDirectory);
+            workspace.Sync();
         }
         catch(ConfigurationNotFoundException)
         {

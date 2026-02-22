@@ -8,15 +8,16 @@ class FlexRefWorkspace
    internal IReadOnlyList<ManagedProject> AllProjects { get; set; } = [];
    internal IReadOnlyList<FlexReferencedProject> FlexReferencedProjects { get; set; } = [];
 
+   FlexRefConfigurationFile ConfigurationFile { get; }
+
    public FlexRefWorkspace(DirectoryInfo rootDirectory)
    {
       if(!rootDirectory.Exists)
          throw new RootDirectoryNotFoundException(rootDirectory);
 
       RootDirectory = rootDirectory;
+      ConfigurationFile = new FlexRefConfigurationFile(this);
    }
-
-   bool ConfigurationExists => FlexRefConfigurationFile.ExistsIn(RootDirectory);
 
    void ScanProjects()
    {
@@ -26,23 +27,22 @@ class FlexRefWorkspace
 
    void LoadConfigurationAndResolve()
    {
-      if(!ConfigurationExists)
+      if(!ConfigurationFile.Exists())
          throw new ConfigurationNotFoundException(RootDirectory);
 
-      var configFile = new FlexRefConfigurationFile(this);
-      configFile.Load();
+      ConfigurationFile.Load();
 
-      FlexReferencedProjects = ManagedProject.ResolveFlexReferencedProjects(configFile, AllProjects.ToList());
+      FlexReferencedProjects = ManagedProject.ResolveFlexReferencedProjects(ConfigurationFile, AllProjects.ToList());
    }
 
    public void Init()
    {
       ScanProjects();
 
-      if(ConfigurationExists)
+      if(ConfigurationFile.Exists())
          throw new ConfigurationAlreadyExistsException(RootDirectory);
 
-      new FlexRefConfigurationFile(this).CreateDefault();
+      ConfigurationFile.CreateDefault();
       FlexRefPropsFileWriter.Write(this);
    }
 

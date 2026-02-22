@@ -31,9 +31,6 @@ class FlexRefConfigurationFile
         ConfigFile = new FileInfo(Path.Combine(workspace.RootDirectory.FullName, DomainConstants.ConfigurationFileName));
     }
 
-    public static bool ExistsIn(DirectoryInfo rootDirectory) =>
-        File.Exists(Path.Combine(rootDirectory.FullName, DomainConstants.ConfigurationFileName));
-
     public bool Exists() => ConfigFile.Exists;
 
     public void CreateDefault()

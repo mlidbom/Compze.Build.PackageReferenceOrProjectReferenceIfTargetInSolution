@@ -94,7 +94,7 @@ partial class CSProj
             {
                 var includePath = element.Attribute("Include")?.Value;
                 if(includePath == null) return false;
-                var fileName = Path.GetFileName(includePath);
+                var fileName = Path.GetFileName(includePath.Replace('\\', '/'));
                 return _workspace.FlexReferencedProjects.Any(flexReferencedProject =>
                                                          flexReferencedProject.CsprojFile.Name.EqualsIgnoreCase(fileName));
             }

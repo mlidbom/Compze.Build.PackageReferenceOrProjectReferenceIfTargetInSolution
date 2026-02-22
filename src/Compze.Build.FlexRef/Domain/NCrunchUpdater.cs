@@ -66,7 +66,7 @@ class NCrunchUpdater
         if(customBuildProperties != null)
         {
             var existingFlexRefValues = customBuildProperties.Elements("Value")
-                .Where(value => value.Value.TrimStart().StartsWith("UsePackageReference_"))
+                .Where(value => value.Value.TrimStart().StartsWith(DomainConstants.UsePackageReferencePropertyPrefix))
                 .ToList();
 
             foreach(var value in existingFlexRefValues)

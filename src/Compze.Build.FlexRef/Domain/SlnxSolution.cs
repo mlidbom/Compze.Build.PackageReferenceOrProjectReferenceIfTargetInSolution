@@ -10,7 +10,7 @@ partial class SlnxSolution
         get
         {
             var solutionStem = Path.GetFileNameWithoutExtension(SlnxFile.Name);
-            return new FileInfo(Path.Combine(SlnxFile.DirectoryName!, solutionStem + ".v3.ncrunchsolution"));
+            return new FileInfo(Path.Combine(SlnxFile.DirectoryName!, solutionStem + DomainConstants.NCrunchSolutionFileExtension));
         }
     }
 

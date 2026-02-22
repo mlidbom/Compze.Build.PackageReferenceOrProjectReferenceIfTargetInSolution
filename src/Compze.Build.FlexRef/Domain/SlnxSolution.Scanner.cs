@@ -14,7 +14,7 @@ partial class SlnxSolution
 
         static IEnumerable<FileInfo> FindSlnxFilesRecursively(DirectoryInfo directory)
         {
-            foreach(var file in directory.GetFiles("*.slnx"))
+            foreach(var file in directory.GetFiles(DomainConstants.SlnxSearchPattern))
                 yield return file;
 
             foreach(var subdirectory in directory.GetDirectories())

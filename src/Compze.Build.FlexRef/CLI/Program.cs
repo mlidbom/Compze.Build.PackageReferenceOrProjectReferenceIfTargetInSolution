@@ -29,20 +29,20 @@ static class Program
 
         return command switch
         {
-            "init" => InitCommand.Execute(workspace),
-            "sync" => SyncCommand.Execute(workspace),
+            CliConstants.Commands.Init => InitCommand.Execute(workspace),
+            CliConstants.Commands.Sync => SyncCommand.Execute(workspace),
             _ => PrintUsageAndReturnError()
         };
     }
 
     static int PrintUsageAndReturnError()
     {
-        Console.WriteLine("""
-            Usage: flexref <command> [directory]
+        Console.WriteLine($"""
+            Usage: {CliConstants.CommandName} <command> [directory]
 
             Commands:
-              init   Create FlexRef.config.xml and build/FlexRef.props
-              sync   Update all managed files based on configuration
+              {CliConstants.Commands.Init}   Create {DomainConstants.ConfigurationFileName} and {DomainConstants.BuildDirectoryName}/{DomainConstants.PropsFileName}
+              {CliConstants.Commands.Sync}   Update all managed files based on configuration
 
             If [directory] is omitted, the current directory is used.
             """);

@@ -41,7 +41,7 @@ partial class ManagedProject
 
             foreach(var package in resolvedPackages)
             {
-                var expectedFileName = package.PackageId + ".csproj";
+                var expectedFileName = package.PackageId + DomainConstants.CsprojFileExtension;
                 if(!package.CsprojFile.Name.EqualsIgnoreCase(expectedFileName))
                 {
                     Console.Error.WriteLine($"  Warning: Package '{package.PackageId}' is in project file '{package.CsprojFile.Name}' (expected '{expectedFileName}')");

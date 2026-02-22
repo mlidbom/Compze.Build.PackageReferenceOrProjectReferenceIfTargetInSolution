@@ -10,6 +10,6 @@ class FlexReferencedProject
     {
         PackageId = project.PackageId ?? throw new ArgumentException("Project must have a PackageId.", nameof(project));
         CsprojFile = project.CsprojFile;
-        PropertyName = "UsePackageReference_" + PackageId.Replace('.', '_').Replace('-', '_');
+        PropertyName = DomainConstants.UsePackageReferencePropertyPrefix + PackageId.Replace('.', '_').Replace('-', '_');
     }
 }

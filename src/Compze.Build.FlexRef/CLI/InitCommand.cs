@@ -14,14 +14,14 @@ static class InitCommand
         }
         catch(ConfigurationAlreadyExistsException)
         {
-            Console.Error.WriteLine("Error: FlexRef.config.xml already exists.");
+            Console.Error.WriteLine($"Error: {DomainConstants.ConfigurationFileName} already exists.");
             Console.Error.WriteLine("Delete it first if you want to re-initialize.");
             return 1;
         }
 
         Console.WriteLine();
         Console.WriteLine("Initialization complete.");
-        Console.WriteLine("Review FlexRef.config.xml, then run 'flexref sync' to generate the boilerplate.");
+        Console.WriteLine($"Review {DomainConstants.ConfigurationFileName}, then run '{CliConstants.CommandName} {CliConstants.Commands.Sync}' to generate the boilerplate.");
         return 0;
     }
 }

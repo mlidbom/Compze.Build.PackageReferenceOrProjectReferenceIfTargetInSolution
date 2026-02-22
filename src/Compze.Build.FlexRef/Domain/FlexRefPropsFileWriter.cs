@@ -4,14 +4,11 @@ namespace Compze.Build.FlexRef.Domain;
 
 static class FlexRefPropsFileWriter
 {
-    const string BuildDirectoryName = "build";
-    const string PropsFileName = "FlexRef.props";
-
     public static FileInfo GetPropsFile(DirectoryInfo rootDirectory) =>
-        new(Path.Combine(rootDirectory.FullName, BuildDirectoryName, PropsFileName));
+        new(Path.Combine(rootDirectory.FullName, DomainConstants.BuildDirectoryName, DomainConstants.PropsFileName));
 
     public static string GetMsBuildImportProjectValue() =>
-        $"$(MSBuildThisFileDirectory){BuildDirectoryName}\\{PropsFileName}";
+        $"$(MSBuildThisFileDirectory){DomainConstants.BuildDirectoryName}\\{DomainConstants.PropsFileName}";
 
     public static void WriteToDirectory(DirectoryInfo rootDirectory)
     {
@@ -19,7 +16,7 @@ static class FlexRefPropsFileWriter
         Directory.CreateDirectory(targetFile.DirectoryName!);
 
         using var resourceStream = Assembly.GetExecutingAssembly()
-            .GetManifestResourceStream("FlexRef.props")
+            .GetManifestResourceStream(DomainConstants.PropsFileName)
             ?? throw new InvalidOperationException(
                 "Embedded FlexRef.props resource not found in CLI assembly. This is a bug — please report it.");
 

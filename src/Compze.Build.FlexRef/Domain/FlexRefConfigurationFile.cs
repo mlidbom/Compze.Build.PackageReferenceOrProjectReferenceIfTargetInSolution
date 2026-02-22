@@ -4,8 +4,6 @@ namespace Compze.Build.FlexRef.Domain;
 
 class FlexRefConfigurationFile
 {
-    const string ConfigFileName = "FlexRef.config.xml";
-
     static class Tags
     {
         public const string FlexRef = "FlexRef";
@@ -28,11 +26,11 @@ class FlexRefConfigurationFile
     public FlexRefConfigurationFile(DirectoryInfo rootDirectory)
     {
         RootDirectory = rootDirectory;
-        ConfigFile = new FileInfo(Path.Combine(rootDirectory.FullName, ConfigFileName));
+        ConfigFile = new FileInfo(Path.Combine(rootDirectory.FullName, DomainConstants.ConfigurationFileName));
     }
 
     public static bool ExistsIn(DirectoryInfo rootDirectory) =>
-        File.Exists(Path.Combine(rootDirectory.FullName, ConfigFileName));
+        File.Exists(Path.Combine(rootDirectory.FullName, DomainConstants.ConfigurationFileName));
 
     public bool Exists() => ConfigFile.Exists;
 
@@ -73,7 +71,7 @@ class FlexRefConfigurationFile
         {
             Console.WriteLine($"    - {project.PackageId} ({project.CsprojFile.Name})");
 
-            var expectedFileName = project.PackageId + ".csproj";
+            var expectedFileName = project.PackageId + DomainConstants.CsprojFileExtension;
             if (!project.CsprojFile.Name.EqualsIgnoreCase(expectedFileName))
                 Console.Error.WriteLine($"      Warning: Package ID '{project.PackageId}' does not match file name '{project.CsprojFile.Name}'");
         }

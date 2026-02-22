@@ -14,8 +14,8 @@ static class SyncCommand
         }
         catch(ConfigurationNotFoundException)
         {
-            Console.Error.WriteLine("Error: FlexRef.config.xml not found.");
-            Console.Error.WriteLine("Run 'flexref init' first to create the configuration.");
+            Console.Error.WriteLine($"Error: {DomainConstants.ConfigurationFileName} not found.");
+            Console.Error.WriteLine($"Run '{CliConstants.CommandName} {CliConstants.Commands.Init}' first to create the configuration.");
             return 1;
         }
 

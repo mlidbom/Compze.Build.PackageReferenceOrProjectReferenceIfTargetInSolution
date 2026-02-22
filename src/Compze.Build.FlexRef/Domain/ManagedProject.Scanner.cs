@@ -17,7 +17,7 @@ partial class ManagedProject
 
         static IEnumerable<FileInfo> FindCsprojFilesRecursively(DirectoryInfo directory)
         {
-            foreach(var file in directory.GetFiles("*.csproj"))
+            foreach(var file in directory.GetFiles(DomainConstants.CsprojSearchPattern))
                 yield return file;
 
             foreach(var subdirectory in directory.GetDirectories())

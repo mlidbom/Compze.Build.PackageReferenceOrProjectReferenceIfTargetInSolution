@@ -4,8 +4,6 @@ namespace Compze.Build.FlexRef.Domain;
 
 class DirectoryBuildPropsFileUpdater
 {
-    const string FileName = "Directory.Build.props";
-
     readonly FileInfo _file;
     readonly XDocument _document;
     readonly XElement _rootElement;
@@ -14,13 +12,13 @@ class DirectoryBuildPropsFileUpdater
     DirectoryBuildPropsFileUpdater(FlexRefWorkspace workspace)
     {
         _workspace = workspace;
-        _file = new FileInfo(Path.Combine(workspace.RootDirectory.FullName, FileName));
+        _file = new FileInfo(Path.Combine(workspace.RootDirectory.FullName, DomainConstants.DirectoryBuildPropsFileName));
 
         if(_file.Exists)
         {
             _document = XDocument.Load(_file.FullName);
             _rootElement = _document.Root
-                ?? throw new InvalidOperationException($"Invalid {FileName}: missing root element.");
+                ?? throw new InvalidOperationException($"Invalid {DomainConstants.DirectoryBuildPropsFileName}: missing root element.");
         } else
         {
             _rootElement = new XElement("Project");
@@ -49,7 +47,7 @@ class DirectoryBuildPropsFileUpdater
     void RemoveExistingFlexRefImport()
     {
         var flexRefImports = _rootElement.Elements("Import")
-            .Where(element => element.Attribute("Project")?.Value.Contains("FlexRef.props") == true)
+            .Where(element => element.Attribute("Project")?.Value.Contains(DomainConstants.PropsFileName) == true)
             .ToList();
 
         foreach(var importElement in flexRefImports)
@@ -61,7 +59,7 @@ class DirectoryBuildPropsFileUpdater
         foreach(var propertyGroup in _rootElement.Elements("PropertyGroup").ToList())
         {
             var propertiesToRemove = propertyGroup.Elements()
-                .Where(element => element.Name.LocalName.StartsWith("UsePackageReference_"))
+                .Where(element => element.Name.LocalName.StartsWith(DomainConstants.UsePackageReferencePropertyPrefix))
                 .ToList();
 
             foreach(var property in propertiesToRemove)

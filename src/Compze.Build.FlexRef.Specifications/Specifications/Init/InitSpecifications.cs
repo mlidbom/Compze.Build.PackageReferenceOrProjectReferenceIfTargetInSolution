@@ -6,16 +6,16 @@ namespace Compze.Build.FlexRef.Specifications.Init;
 public class InitSpecifications
 {
    static string ThisFilePath([CallerFilePath] string? path = null) => path!;
-   static readonly string ScenariosDirectoryPath = Path.Combine(Path.GetDirectoryName(ThisFilePath())!, "InitScenarios");
+   static readonly DirectoryInfo ScenariosDirectory = new(Path.Combine(Path.GetDirectoryName(ThisFilePath())!, "InitScenarios"));
 
-   public static TheoryData<string> Scenarios => ScenarioRunner.DiscoverScenarios(ScenariosDirectoryPath);
+   public static TheoryData<string> Scenarios => ScenarioRunner.DiscoverScenarios(ScenariosDirectory);
 
    [Theory]
    [MemberData(nameof(Scenarios))]
    public void produces_expected_workspace_state(string scenarioName)
    {
       ScenarioRunner.RunAndVerify(
-         Path.Combine(ScenariosDirectoryPath, scenarioName),
+         new DirectoryInfo(Path.Combine(ScenariosDirectory.FullName, scenarioName)),
          workspace => workspace.Init());
    }
 }

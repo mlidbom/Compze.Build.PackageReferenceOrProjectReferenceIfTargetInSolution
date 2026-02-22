@@ -5,46 +5,46 @@ namespace Compze.Build.FlexRef.Specifications;
 
 static class ScenarioRunner
 {
-   public static TheoryData<string> DiscoverScenarios(string scenariosDirectoryPath)
+   public static TheoryData<string> DiscoverScenarios(DirectoryInfo scenariosDirectory)
    {
       var theoryData = new TheoryData<string>();
-      foreach(var directory in Directory.GetDirectories(scenariosDirectoryPath).Order())
-         theoryData.Add(Path.GetFileName(directory));
+      foreach(var subdirectory in scenariosDirectory.GetDirectories().OrderBy(directory => directory.Name))
+         theoryData.Add(subdirectory.Name);
       return theoryData;
    }
 
-   public static void RunAndVerify(string scenarioDirectoryPath, Action<Domain.FlexRefWorkspace> command)
+   public static void RunAndVerify(DirectoryInfo scenarioDirectory, Action<Domain.FlexRefWorkspace> command)
    {
-      var startStatePath = Path.Combine(scenarioDirectoryPath, "start-state");
-      var expectedStatePath = Path.Combine(scenarioDirectoryPath, "expected-state");
-      var tempWorkFolderPath = Path.Combine(scenarioDirectoryPath, "temp-work-folder");
+      var startState = new DirectoryInfo(Path.Combine(scenarioDirectory.FullName, "start-state"));
+      var expectedState = new DirectoryInfo(Path.Combine(scenarioDirectory.FullName, "expected-state"));
+      var tempWorkFolder = new DirectoryInfo(Path.Combine(scenarioDirectory.FullName, "temp-work-folder"));
 
-      if(Directory.Exists(tempWorkFolderPath))
-         Directory.Delete(tempWorkFolderPath, true);
+      if(tempWorkFolder.Exists)
+         tempWorkFolder.Delete(true);
 
-      CopyDirectory(startStatePath, tempWorkFolderPath);
+      CopyDirectory(startState, tempWorkFolder);
 
-      var workspace = new Domain.FlexRefWorkspace(new DirectoryInfo(tempWorkFolderPath));
+      var workspace = new Domain.FlexRefWorkspace(tempWorkFolder);
       command(workspace);
 
-      CompareDirectoryContents(expectedStatePath, tempWorkFolderPath);
+      CompareDirectoryContents(expectedState, tempWorkFolder);
    }
 
-   static void CopyDirectory(string sourcePath, string destinationPath)
+   static void CopyDirectory(DirectoryInfo source, DirectoryInfo destination)
    {
-      foreach(var filePath in Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories))
+      foreach(var sourceFile in source.GetFiles("*", SearchOption.AllDirectories))
       {
-         var relativePath = Path.GetRelativePath(sourcePath, filePath);
-         var destinationFilePath = Path.Combine(destinationPath, relativePath);
-         Directory.CreateDirectory(Path.GetDirectoryName(destinationFilePath)!);
-         File.Copy(filePath, destinationFilePath);
+         var relativePath = Path.GetRelativePath(source.FullName, sourceFile.FullName);
+         var destinationFile = new FileInfo(Path.Combine(destination.FullName, relativePath));
+         destinationFile.Directory!.Create();
+         sourceFile.CopyTo(destinationFile.FullName);
       }
    }
 
-   static void CompareDirectoryContents(string expectedDirectoryPath, string actualDirectoryPath)
+   static void CompareDirectoryContents(DirectoryInfo expectedDirectory, DirectoryInfo actualDirectory)
    {
-      var expectedRelativeFilePaths = GetSortedRelativeFilePaths(expectedDirectoryPath);
-      var actualRelativeFilePaths = GetSortedRelativeFilePaths(actualDirectoryPath);
+      var expectedRelativeFilePaths = GetSortedRelativeFilePaths(expectedDirectory);
+      var actualRelativeFilePaths = GetSortedRelativeFilePaths(actualDirectory);
 
       var missingFiles = expectedRelativeFilePaths.Except(actualRelativeFilePaths).ToList();
       var extraFiles = actualRelativeFilePaths.Except(expectedRelativeFilePaths).ToList();
@@ -61,8 +61,8 @@ static class ScenarioRunner
 
       foreach(var relativeFilePath in expectedRelativeFilePaths)
       {
-         var expectedContent = NormalizeLineEndings(File.ReadAllText(Path.Combine(expectedDirectoryPath, relativeFilePath)));
-         var actualContent = NormalizeLineEndings(File.ReadAllText(Path.Combine(actualDirectoryPath, relativeFilePath)));
+         var expectedContent = NormalizeLineEndings(new FileInfo(Path.Combine(expectedDirectory.FullName, relativeFilePath)).OpenText().ReadToEnd());
+         var actualContent = NormalizeLineEndings(new FileInfo(Path.Combine(actualDirectory.FullName, relativeFilePath)).OpenText().ReadToEnd());
 
          try
          {
@@ -75,9 +75,9 @@ static class ScenarioRunner
       }
    }
 
-   static SortedSet<string> GetSortedRelativeFilePaths(string directoryPath) =>
-      new(Directory.GetFiles(directoryPath, "*", SearchOption.AllDirectories)
-                   .Select(filePath => Path.GetRelativePath(directoryPath, filePath).Replace('\\', '/')),
+   static SortedSet<string> GetSortedRelativeFilePaths(DirectoryInfo directory) =>
+      new(directory.GetFiles("*", SearchOption.AllDirectories)
+                   .Select(file => Path.GetRelativePath(directory.FullName, file.FullName).Replace('\\', '/')),
          StringComparer.OrdinalIgnoreCase);
 
    static string NormalizeLineEndings(string content) => content.Replace("\r\n", "\n");

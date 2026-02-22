@@ -1,3 +1,4 @@
+using Compze.Build.FlexRef.MicrosoftCE.BuildCE.EvaluationCE;
 using Compze.Build.FlexRef.SystemCE;
 using Microsoft.Build.Evaluation;
 

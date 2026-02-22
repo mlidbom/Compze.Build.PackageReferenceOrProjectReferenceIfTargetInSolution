@@ -1,4 +1,4 @@
-namespace Compze.Build.FlexRef.SystemCE;
+namespace Compze.Build.FlexRef.SystemCE.IOCE;
 
 static class FileInfoCE
 {

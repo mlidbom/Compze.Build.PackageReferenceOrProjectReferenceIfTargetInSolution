@@ -1,5 +1,5 @@
 using System.Xml.Linq;
-using Compze.Build.FlexRef.SystemCE;
+using Compze.Build.FlexRef.SystemCE.XmlCE.LinqCE;
 
 namespace Compze.Build.FlexRef.Domain;
 

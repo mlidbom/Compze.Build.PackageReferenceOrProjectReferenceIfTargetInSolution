@@ -1,0 +1,4 @@
+[submodule "submodules/Compze"]
+	path = submodules/Compze
+	url = https://github.com/mlidbom/Compze.git
+	branch = develop

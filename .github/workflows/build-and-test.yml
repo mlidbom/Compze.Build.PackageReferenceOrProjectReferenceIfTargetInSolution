@@ -15,7 +15,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            10.0.x
 
       - name: Pack NuGet package (validation only)
         run: >
@@ -28,6 +30,9 @@ jobs:
         run: |
           dotnet pack example/src/Acme.Core/Acme.Core.csproj --configuration Release --output example/local-packages
           dotnet pack example/src/Acme.Utilities/Acme.Utilities.csproj --configuration Release --output example/local-packages
+
+      - name: Run specification tests
+        run: dotnet test src/Compze.Build.FlexRef.Specifications/Compze.Build.FlexRef.Specifications.csproj
 
       - name: Test example — Full solution (all ProjectReferences)
         run: dotnet test example/Acme.Full.slnx

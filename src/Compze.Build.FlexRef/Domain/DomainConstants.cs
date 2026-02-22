@@ -11,4 +11,5 @@ static class DomainConstants
     public const string CsprojFileExtension = ".csproj";
     public const string CsprojSearchPattern = "*.csproj";
     public const string SlnxSearchPattern = "*.slnx";
+    public static readonly string[] DirectoriesToSkip = ["bin", "obj", "node_modules", ".git", ".vs", ".idea"];
 }

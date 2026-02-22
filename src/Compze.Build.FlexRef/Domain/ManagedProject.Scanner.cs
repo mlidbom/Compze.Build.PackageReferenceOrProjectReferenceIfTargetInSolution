@@ -22,7 +22,7 @@ partial class ManagedProject
 
             foreach(var subdirectory in directory.GetDirectories())
             {
-                if(ScannerDefaults.DirectoriesToSkip.Contains(subdirectory.Name, StringComparer.OrdinalIgnoreCase))
+                if(DomainConstants.DirectoriesToSkip.Contains(subdirectory.Name, StringComparer.OrdinalIgnoreCase))
                     continue;
 
                 foreach(var file in FindCsprojFilesRecursively(subdirectory))

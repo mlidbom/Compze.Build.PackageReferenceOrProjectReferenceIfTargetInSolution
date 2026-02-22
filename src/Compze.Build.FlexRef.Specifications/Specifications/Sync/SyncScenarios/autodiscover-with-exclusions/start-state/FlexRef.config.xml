@@ -1,0 +1,5 @@
+<FlexRef>
+  <AutoDiscover>
+    <Exclude Name="MyLib" />
+  </AutoDiscover>
+</FlexRef>

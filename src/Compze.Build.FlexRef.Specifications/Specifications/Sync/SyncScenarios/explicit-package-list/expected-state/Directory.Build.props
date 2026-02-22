@@ -1,0 +1,9 @@
+<Project>
+  <!-- Import FlexRef infrastructure (reads solution content) -->
+  <Import Project="$(MSBuildThisFileDirectory)build\FlexRef.props" />
+  <!-- Per-dependency auto-detection managed by FlexRef -->
+  <PropertyGroup>
+    <!-- MyUtils -->
+    <UsePackageReference_MyUtils Condition="'$(UsePackageReference_MyUtils)' != 'true' And '$(_FlexRef_SolutionProjects)' != '' And !$(_FlexRef_SolutionProjects.Contains('|MyUtils.csproj|'))">true</UsePackageReference_MyUtils>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,11 @@
+<SolutionConfiguration>
+  <Settings>
+    <AllowParallelTestExecution>True</AllowParallelTestExecution>
+    <EnableRDI>False</EnableRDI>
+    <RdiConfigured>True</RdiConfigured>
+    <SolutionConfigured>True</SolutionConfigured>
+    <CustomBuildProperties>
+      <Value>UsePackageReference_MyLib = true</Value>
+    </CustomBuildProperties>
+  </Settings>
+</SolutionConfiguration>

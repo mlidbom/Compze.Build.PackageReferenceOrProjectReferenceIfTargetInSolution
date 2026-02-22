@@ -1,0 +1,7 @@
+<SolutionConfiguration>
+  <Settings>
+    <CustomBuildProperties>
+      <Value>UsePackageReference_MyLib = true</Value>
+    </CustomBuildProperties>
+  </Settings>
+</SolutionConfiguration>

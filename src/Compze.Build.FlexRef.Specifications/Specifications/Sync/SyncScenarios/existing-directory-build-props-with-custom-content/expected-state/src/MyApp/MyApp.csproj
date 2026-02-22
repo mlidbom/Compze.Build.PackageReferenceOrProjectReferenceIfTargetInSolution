@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <!-- MyLib — flex reference -->
+  <ItemGroup Condition="'$(UsePackageReference_MyLib)' == 'true'">
+    <PackageReference Include="MyLib" Version="*-*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UsePackageReference_MyLib)' != 'true'">
+    <ProjectReference Include="..\MyLib\MyLib.csproj" />
+  </ItemGroup>
+</Project>

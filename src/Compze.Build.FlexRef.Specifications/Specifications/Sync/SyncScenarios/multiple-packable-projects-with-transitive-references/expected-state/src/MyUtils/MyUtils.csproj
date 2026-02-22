@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageId>MyUtils</PackageId>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+  <!-- MyLib — flex reference -->
+  <ItemGroup Condition="'$(UsePackageReference_MyLib)' == 'true'">
+    <PackageReference Include="MyLib" Version="*-*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UsePackageReference_MyLib)' != 'true'">
+    <ProjectReference Include="..\MyLib\MyLib.csproj" />
+  </ItemGroup>
+</Project>

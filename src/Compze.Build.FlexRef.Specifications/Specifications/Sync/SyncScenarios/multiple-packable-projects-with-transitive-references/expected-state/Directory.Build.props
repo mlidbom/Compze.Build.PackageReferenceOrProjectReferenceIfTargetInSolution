@@ -1,0 +1,11 @@
+<Project>
+  <!-- Import FlexRef infrastructure (reads solution content) -->
+  <Import Project="$(MSBuildThisFileDirectory)build\FlexRef.props" />
+  <!-- Per-dependency auto-detection managed by FlexRef -->
+  <PropertyGroup>
+    <!-- MyLib -->
+    <UsePackageReference_MyLib Condition="'$(UsePackageReference_MyLib)' != 'true' And '$(_FlexRef_SolutionProjects)' != '' And !$(_FlexRef_SolutionProjects.Contains('|MyLib.csproj|'))">true</UsePackageReference_MyLib>
+    <!-- MyUtils -->
+    <UsePackageReference_MyUtils Condition="'$(UsePackageReference_MyUtils)' != 'true' And '$(_FlexRef_SolutionProjects)' != '' And !$(_FlexRef_SolutionProjects.Contains('|MyUtils.csproj|'))">true</UsePackageReference_MyUtils>
+  </PropertyGroup>
+</Project>

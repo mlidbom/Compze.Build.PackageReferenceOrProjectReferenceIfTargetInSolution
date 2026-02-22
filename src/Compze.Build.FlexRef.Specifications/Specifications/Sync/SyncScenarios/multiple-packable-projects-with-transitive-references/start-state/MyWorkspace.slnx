@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MyLib/MyLib.csproj" />
+    <Project Path="src/MyUtils/MyUtils.csproj" />
+    <Project Path="src/MyApp/MyApp.csproj" />
+  </Folder>
+</Solution>

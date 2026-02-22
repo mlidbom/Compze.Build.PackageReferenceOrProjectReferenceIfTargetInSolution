@@ -1,0 +1,7 @@
+<FlexRef>
+  <AutoDiscover />
+  <!-- Alternatively, list packages explicitly instead of using AutoDiscover:
+  <Package Name="MyLib" />
+  <Package Name="MyUtils" />
+  -->
+</FlexRef>

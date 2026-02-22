@@ -1,4 +1,4 @@
-namespace Compze.Build.FlexRef.Domain;
+namespace Compze.Build.FlexRef.SystemCE;
 
 static class StringCE
 {

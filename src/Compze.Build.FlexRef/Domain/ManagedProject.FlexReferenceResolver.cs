@@ -1,3 +1,5 @@
+using Compze.Build.FlexRef.SystemCE;
+
 namespace Compze.Build.FlexRef.Domain;
 
 partial class ManagedProject

@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace Compze.Build.FlexRef.Domain;
+namespace Compze.Build.FlexRef.SystemCE;
 
 static class XNodeCE
 {

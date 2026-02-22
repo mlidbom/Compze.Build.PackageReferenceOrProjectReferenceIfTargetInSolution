@@ -2,7 +2,7 @@ using Compze.Build.FlexRef.SystemCE;
 
 namespace Compze.Build.FlexRef.Domain;
 
-partial class ManagedProject
+partial class CSProj
 {
     static class FlexReferenceResolver
     {

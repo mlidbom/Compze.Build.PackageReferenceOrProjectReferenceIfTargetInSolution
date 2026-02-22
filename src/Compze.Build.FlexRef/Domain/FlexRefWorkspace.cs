@@ -5,8 +5,8 @@ namespace Compze.Build.FlexRef.Domain;
 class FlexRefWorkspace
 {
    public DirectoryInfo RootDirectory { get; }
-   internal IReadOnlyList<ManagedProject> AllProjects { get; set; } = [];
-   internal IReadOnlyList<FlexReferencedProject> FlexReferencedProjects { get; set; } = [];
+   internal IReadOnlyList<CSProj> AllProjects { get; private set; } = [];
+   internal IReadOnlyList<FlexReferencedProject> FlexReferencedProjects { get; private set; } = [];
 
    internal FlexRefConfigurationFile ConfigurationFile { get; }
    internal DirectoryBuildPropsFile DirectoryBuildPropsFile { get; }
@@ -23,7 +23,7 @@ class FlexRefWorkspace
 
    void ScanProjects()
    {
-      var allProjects = ManagedProject.ScanDirectory(this);
+      var allProjects = CSProj.ScanDirectory(this);
       AllProjects = allProjects;
    }
 
@@ -34,7 +34,7 @@ class FlexRefWorkspace
 
       ConfigurationFile.Load();
 
-      FlexReferencedProjects = ManagedProject.ResolveFlexReferencedProjects(this);
+      FlexReferencedProjects = CSProj.ResolveFlexReferencedProjects(this);
    }
 
    public void Init()

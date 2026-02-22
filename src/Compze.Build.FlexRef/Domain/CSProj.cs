@@ -9,7 +9,7 @@ internal record ProjectReferenceEntry(string IncludePath, string ResolvedFileNam
 
 internal record PackageReferenceEntry(string PackageName, string Version);
 
-internal partial class ManagedProject
+internal partial class CSProj
 {
     public FileInfo CsprojFile { get; }
     public string? PackageId { get; }
@@ -17,7 +17,7 @@ internal partial class ManagedProject
     public List<ProjectReferenceEntry> ProjectReferences { get; }
     public List<PackageReferenceEntry> PackageReferences { get; }
 
-    private ManagedProject(FileInfo csprojFile, ProjectCollection projectCollection, FlexRefWorkspace workspace)
+    private CSProj(FileInfo csprojFile, ProjectCollection projectCollection, FlexRefWorkspace workspace)
     {
         Workspace = workspace;
         CsprojFile = csprojFile;
@@ -46,13 +46,13 @@ internal partial class ManagedProject
             .ToList();
     }
 
-    internal static List<ManagedProject> ScanDirectory(FlexRefWorkspace workspace)
+    internal static List<CSProj> ScanDirectory(FlexRefWorkspace workspace)
     {
         using var projectCollection = new ProjectCollection();
         return workspace.RootDirectory
             .EnumerateFiles(DomainConstants.CsprojSearchPattern, SearchOption.AllDirectories)
             .Where(file => !DomainConstants.DirectoriesToSkip.Any(file.HasDirectoryInPath))
-            .Select(csprojFile => new ManagedProject(csprojFile, projectCollection, workspace))
+            .Select(csprojFile => new CSProj(csprojFile, projectCollection, workspace))
             .ToList();
     }
 

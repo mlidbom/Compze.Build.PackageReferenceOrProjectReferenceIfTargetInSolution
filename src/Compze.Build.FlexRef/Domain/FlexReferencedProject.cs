@@ -6,7 +6,7 @@ class FlexReferencedProject
     public FileInfo CsprojFile { get; }
     public string PropertyName { get; }
 
-    public FlexReferencedProject(ManagedProject project)
+    public FlexReferencedProject(CSProj project)
     {
         PackageId = project.PackageId ?? throw new ArgumentException("Project must have a PackageId.", nameof(project));
         CsprojFile = project.CsprojFile;

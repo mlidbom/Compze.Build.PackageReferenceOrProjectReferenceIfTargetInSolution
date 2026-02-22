@@ -18,7 +18,7 @@ class CsprojUpdater
             UpdateIfNeeded(project);
     }
 
-    void UpdateIfNeeded(ManagedProject project)
+    void UpdateIfNeeded(CSProj project)
     {
         if(project.FlexReferencedProjects.Count == 0)
             return;
@@ -100,7 +100,7 @@ class CsprojUpdater
         return false;
     }
 
-    static void AppendFlexReferencePairs(XElement rootElement, ManagedProject project, Dictionary<string, string> existingPackageVersions)
+    static void AppendFlexReferencePairs(XElement rootElement, CSProj project, Dictionary<string, string> existingPackageVersions)
     {
         foreach(var flexReferencedProject in project.FlexReferencedProjects)
         {

@@ -12,7 +12,7 @@
     <ToolCommandName>flexref</ToolCommandName>
 
     <PackageId>Compze.Build.FlexRef</PackageId>
-    <Description>CLI tool for managing FlexRef switchable references — automatically generates the boilerplate for switching between ProjectReference and PackageReference based on solution membership.</Description>
+    <Description>ProjectReference and PackageReference merged into one. Automatically switches based on the open solution.</Description>
     <Authors>MagnusLidbom</Authors>
     <Copyright>Copyright (c) Lidbom Solutions AB. All rights reserved.</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

@@ -1,19 +1,26 @@
 # Compze.Build.FlexRef
 
-Solution-aware MSBuild reference resolution for .NET projects.
+ProjectReference and PackageReference merged into one. Automatically switches based on the open solution.
 
 ### The Problem
 
-When a .NET solution contains many projects that are also published as NuGet packages, you face a choice:
+When a .NET solution contains many projects that are also shared as NuGet packages, you face a choice:
 
 - **ProjectReference** — good for cross cutting development and refactoring across all projects, but requires all projects in the solution and builds are slow.
 - **PackageReference** — fast builds and lightweight solutions with any subset of projects, but you lose the above advantages.
 
 ### Our Solution
 
-A dotnet tool that generates the MSBuild boilerplate to turn your references into flex references, which become project references if the referenced project is in the solution, and package references if not.
+- Two .props files which together enable csproj files to use FlexReference, a hybrid PackageReference/ProjectReference that
+   - becomes a ProjectReference if the referenced project is in the opened solution.
+   - becomes a PackageReference if it is not
+- A dotnet tool that
+  - Automatically ensures that all the csproj files in your source tree use flex references everywhere that they should
+  - Manages custom build properties override files for NCrunch solutions so that this all works painlessly in NCrunch as well 
 
-Then you can set up any number of `.slnx` solutions to fit what you need at the moment.
+Then you can set up any number of `.slnx` files to fit whatever parts of your project ecosystem you need to work with at the moment. 
+
+For instance, as we develop Compze, we can open the monolithic solution with 50+ projects (and growing fast) to do cross cutting refactoring. Or we can open Compze.Threading.slnx which contains just a handful. Both solutions use the exact same csproj files. In the monolithic solution everything becomes project references, in the threading solution almost everything becomes package references so builds and tests are super fast and your IDE can sit back and relax.
 
 ## Quick Start
 
